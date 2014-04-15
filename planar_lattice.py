@@ -139,6 +139,7 @@ class PlanarLattice:
        
                
 
+
     def showArray(self,arrayType,channel=0):
 
         c=0 if channel=="X" else 1
@@ -155,6 +156,36 @@ class PlanarLattice:
         plt.imshow(print_array)
         plt.show()
 
+
+    def showArrayText(self,arrayType="errors",channel=0):
+
+        c=0 if channel=="X" else 1
+        if channel=="X": c=0
+        elif channel=="Z": c=1
+        else: 
+            "channel = ",channel," is not supported. \"X\" and \"Z\" are the possible channels"
+
+        if arrayType in ["error","errors","Errors","Error"]: 
+
+            print_array = [[str(x[c]) if isinstance(x,list) else '.' for x in row] for row in self.array]
+            print_array = [[channel if x=='-1' else x for x in row] for row in print_array]
+
+        
+        elif arrayType in ["stabilizers","stabs","stabilisers","stabilizer","stabiliser"]:
+        
+            print_array = [[str(x) if isinstance(x,int) else '.' for x in row] for row in self.array]
+
+        else: 
+            print 'arrayType = ',arrayType,'. This array type isn\'t supported by showArrayText.'
+            print ' please choose  \'errors\' or \'stabilizers\''
+
+
+        print '\n showing the ',arrayType,' array',
+        if arrayType in ["error","errors","Errors","Error"]: print 'for the ',channel,' channel.\n'
+        else: print '.\n'
+        col_width = 3
+        for row in print_array:
+            print "".join(word.ljust(col_width) for word in row)
 
 
     def applyRandomErrors(self,pX,pZ):

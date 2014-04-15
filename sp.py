@@ -15,7 +15,7 @@ import planar_lattice_P
 
 home = os.environ['HOME']
 #planar_lattice = imp.load_source('planar_lattice','%s/perfect_matching/planar_lattice.py'%home)
-#perfect_matching = imp.load_source('perfect_matching','%s/perfect_matching/perfect_matching.py'%home)
+
 
 import perfect_matching
 #import perfect_matching_1403 as perfect_matching
@@ -121,22 +121,23 @@ def run2D(size=4,p=0.03,pLie=0):
    L.measureStars(pLie)
    L.measurePlaquettes(pLie)
 
-#   L.showArray("errors","X")
+   #L.showArray("errors","X")
    #L.showArray("stabilizers","X")
+
+   #L.showArrayText("errors","Z")
+   #L.showArrayText("stabilizers","X")
 
    L.findAnyons()
 
    matchingX=perfect_matching.match_planar_2D(size,"plaquette",L.positions_anyons_P)
    matchingZ=perfect_matching.match_planar_2D(size,"star",L.positions_anyons_S)
 
-
-   #print matching
-
+   
    L.apply_matching("X",matchingX)
    L.apply_matching("Z",matchingZ)
 
- #  L.showArray("errors","X")
-   #L.showArray("errors","Z")
+   L.showArrayText("errors","X")
+   L.showArrayText("errors","Z")
 
    return L.measure_logical()
 
@@ -145,7 +146,7 @@ def run2D(size=4,p=0.03,pLie=0):
 
 
 
-def run3Drandom(size=4,tSteps=5,p=0.05,pLie=0.00,timespace = [1,1]):
+def run3Drandom(size=4,tSteps=5,p=0.05,pLie=0.00,timespace = [1,1],showTextArray=False):
    t0 = time.time()
    L=planar_lattice.PlanarLattice(size)
    PL=planar_lattice.PlanarLattice3D(size)
@@ -170,6 +171,8 @@ def run3Drandom(size=4,tSteps=5,p=0.05,pLie=0.00,timespace = [1,1]):
    PL.addMeasurement(L)             # this to the parity Lattice
 #   L.showArray("stabilizers","X")
 #   L.showArray("errors","X")
+
+   if showTextArray==True: L.showArrayText("errors","X")
    
    PL.findAnyons()
 

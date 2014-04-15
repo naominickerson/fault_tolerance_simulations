@@ -3,7 +3,7 @@ import sp
 n_trials = 100
 success_count = 0
 
-size=7
+size=8
 tSteps=10
 p=0.05
 pLie=0.0
