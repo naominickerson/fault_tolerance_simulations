@@ -87,8 +87,8 @@ class PlanarLattice:
         ## Initialise empty lists to contain qubit and stabilizer values       
 
         self.qubits=[[1]*2 for _ in range(self.N_Q)]
-        self.plaq=[0]*self.N_P
-        self.star=[0]*self.N_P
+        self.plaq=[1]*self.N_P
+        self.star=[1]*self.N_P
        
         ## Initialise array
 
@@ -122,7 +122,8 @@ class PlanarLattice:
                
 
     def showArray(self,arrayType,channel=0):
-
+        """ displays the current state as an array plot
+        """
         c=0 if channel=="X" else 1
         
         if arrayType=="errors":            
@@ -138,16 +139,70 @@ class PlanarLattice:
         plt.show()
 
 
-##########################################################################      
-##################                       #################################
-##################     BASIC TOOLS       #################################
-##################                       #################################
-##########################################################################
 
+    
+    def showArrayText(self,arrayType="errors",channel=0):
+        """ displays the current state in the given channel in text
+        """
+
+
+        if channel in ["X",0]: c=0
+        elif channel in ["Z",1]: c=1
+        else: 
+            "channel = ",channel," is not supported. \"X\" and \"Z\" are the possible channels"
+
+        
+        if arrayType in ["error","errors","Errors","Error"]: 
+
+            print_array = [[str(x[c]) if isinstance(x,list) else '.' for x in row] for row in self.array]
+#            print_array = [[str(channel) if x=='-1' else x for x in row] for row in print_array]
+
+        
+        elif arrayType in ["stabilizers","stabs","stabilisers","stabilizer","stabiliser"]:
+        
+            print_array = [[str(x) if isinstance(x,int) else '.' for x in row] for row in self.array]
+
+        elif arrayType in ["all","both"]:
+            print_array = [[str(x[c]) if isinstance(x,list) else ("#" if x==-1 else ".") for x in row] for row in self.array]
+
+        else: 
+            print 'arrayType = ',arrayType,'. This array type isn\'t supported by showArrayText.'
+            print ' please choose  \'errors\' or \'stabilizers\''
+        
+
+        print '\n showing the ',arrayType,' array',
+        if arrayType in ["error","errors","Errors","Error"]: print 'for the ',channel,' channel.\n'
+        else: print '.\n'
+        col_width = 3
+        for row in print_array:
+            print "".join(word.ljust(col_width) for word in row)
+
+
+
+    #####
+    #####
+    #####       MEASURING STABILIZERS
+    #####
+    #####
 
 
     def measurePlaquettes(self,pLie=0):
-                 
+        
+##        for p0,p1 in self.positions_P:
+##            m=2*self.size
+##            stabQubits=((p0,(p1-1)%m),(p0,(p1+1)%m),((p0-1)%m,p1),((p0+1)%m,p1))
+##            
+##            stab=1
+##            for s0,s1 in stabQubits:
+##                stab*=self.array[s0][s1][0]
+##
+##                
+##            rand = random.random()
+##            if rand>pLie: stab*=-1
+##
+##            self.array[p0][p1]=stab
+##
+
         for i in range(self.N_P):
 
             pos=self.positions_P[i]
@@ -243,18 +298,29 @@ class PlanarLattice:
 
     def applyRandomErrors(self,pX,pZ):
 
-        for i in range(self.N_Q):
-
+        for q0,q1 in self.positions_Q:
             rand1=random.random()
             rand2=random.random()
-
+            
             if rand1<pX:
-                self.qubits[i][0]=-self.qubits[i][0]
+                self.array[q0][q1][0]*=-1
+#                print "X error applied at position: ",q0,",",q1,"new value is ",self.array[q0][q1]
             if rand2<pZ:
-                self.qubits[i][1]=-self.qubits[i][1]
-
-        self.__constructArray()
-
+                self.array[q0][q1][1]*=-1
+        
+##
+##        for i in range(self.N_Q):
+##
+##            rand1=random.random()
+##            rand2=random.random()
+##
+##            if rand1<pX:
+##                self.qubits[i][0]=-self.qubits[i][0]
+##            if rand2<pZ:
+##                self.qubits[i][1]=-self.qubits[i][1]
+##
+##        self.__constructArray()
+##
 
   
         
@@ -306,59 +372,67 @@ class PlanarLattice:
 #####################################################################
 
 
-    # note to change: pass only an error 'number' to this function and then 
-    # use the lookup tables at the top. Eg. error = 13 -> [1,[-1,-1],[1,1]] 
+    def stabilizer(self,channel,pos,error,round12,stabilizersNotComplete=0):
 
-    def stabilizer(self,channel,pos,error,round12):
+        """ measures value of a stabilizer at a given position, and updates the stabilizer array
 
- #       if channel!="plaquette" and channel!="star":
-#            print "ERROR: channel must be either star or plaquette"
-  #      if round12!=1 and round12!=2:
-   #         print "ERROR: round must be either 1 or 2 "            
-        c=0 if channel=="plaquette" else 1
+        Parameters:
+        ----------
+        channel -- "plaquette" or "star"
+        pos -- array position of stabilizer to be measured
+        error -- error induced by the stabilizer, e.g. [[1,-1],[1,1],-1]: one qubit gets Z error, and the stabilizer 'lies'
+        round12 -- can take values 1 or 2 to indicate 1st or 2nd half-round of stabilizers
+        stabilizersNotComplete -- fraction of stabilziers that aren't evaluated. Default: 0
+
         
-          
-        p=pos
-        m=2*self.size  
-        stabQubits=((p[0],(p[1]-1)%m),(p[0],(p[1]+1)%m),((p[0]-1)%m,p[1]),((p[0]+1)%m,p[1]))
+        """
 
-        order=[0,1,2,3]
-        random.shuffle(order)
+        if round12 not in [1,2]: raise ValueError("round12 must be either 1 or 2")
 
-        lie,err=error  
+        if channel == "plaquette": c=0
+        elif channel == "star": c=1
+        else: raise ValueError("channel must be either \"plaquette\" or \"star\" ")
 
-        ## measure stabilizers first for round 2
-        if round12==2:
-            stab=lie
-            for q in stabQubits:
-#                stab*=self.array[q[0]][q[1]][c]
-                if self.array[q[0]][q[1]][c]==-1: stab = -stab
-            self.array[p[0]][p[1]]=stab
-
-        ## apply the error
         
-        #alternative version: 
-        #random.shuffle(stabQubits)
-        #errQubits = stabQubits[0:2]
+        # option that a stabilizer doesn't get measured. The stabilizer value stays the same as the previous round and no errors are applied
+        
+        if random.random()>stabilizersNotComplete: 
+            
 
- #       random.shuffle(order)
-
-        errQubits = [stabQubits[order[0]],stabQubits[order[1]]]
-#            errQubits=[stabQubits[order[0]],stabQubits[order[1]]]            
-        if err!=[[1,1],[1,1]]:
-            for i in (0,1):
-                q=errQubits[i]
-                if err[i][0]==-1: self.array[q[0]][q[1]][0]=-self.array[q[0]][q[1]][0]
-                if err[i][1]==-1: self.array[q[0]][q[1]][1]=-self.array[q[0]][q[1]][1]
-
+            p=pos
+            m=2*self.size  
+            stabQubits=((p[0],(p[1]-1)%m),(p[0],(p[1]+1)%m),((p[0]-1)%m,p[1]),((p[0]+1)%m,p[1]))
+        
+            # select random order for the qubits
+            order=[0,1,2,3]
+            random.shuffle(order)
+        
+            lie,err=error  
+        
+            ## measure stabilizers first for round 2
+            if round12==2:
+                stab=lie
+                for q in stabQubits:
+                #                stab*=self.array[q[0]][q[1]][c]
+                    if self.array[q[0]][q[1]][c]==-1: stab = -stab
+                    self.array[p[0]][p[1]]=stab
                 
-        ## measure stabilizers second for round1  
-        if round12==1:
-            stab=lie
-            for q in stabQubits:
-                if self.array[q[0]][q[1]][c]==-1: stab=-stab
-#                stab*=self.array[q[0]][q[1]][c]
-            self.array[p[0]][p[1]]=stab
+             ## apply the error
+                
+            errQubits = [stabQubits[order[0]],stabQubits[order[1]]]
+            if err!=[[1,1],[1,1]]:
+                for i in (0,1):
+                    q=errQubits[i]
+                    if err[i][0]==-1: self.array[q[0]][q[1]][0]=-self.array[q[0]][q[1]][0]
+                    if err[i][1]==-1: self.array[q[0]][q[1]][1]=-self.array[q[0]][q[1]][1]
+                
+                
+             ## measure stabilizers second for round1  
+            if round12==1:
+                stab=lie
+                for q in stabQubits:
+                    if self.array[q[0]][q[1]][c]==-1: stab=-stab
+                    self.array[p[0]][p[1]]=stab
 
 
 
@@ -368,9 +442,20 @@ class PlanarLattice:
 
           
 
-    def measureNoisyStabilizers(self,channel,errorVector4):
+    def measureNoisyStabilizers(self,channel,errorVector4,stabilizersNotComplete=0):
 
-        ## error vectors corrected 17/07/13
+        """ measures all the stabilizers of given channel according to the error vector.
+
+        Parameters:
+        ----------
+        channel -- either "plaquette" or "star" 
+        errorVector4 -- error vector describing 4 qubit stabilizer superoperator. 
+        stabilizersNotComplete -- fraction of stabilizers not measured. 
+
+        Returns: 
+        --------
+        No value returned. Stabilizer values updated in self.array
+        """
         
 	if channel=="plaquette":
         	errorList1=errorListP1
@@ -390,14 +475,18 @@ class PlanarLattice:
 
         c_probs1=np.cumsum(np.array(probs1)).tolist()           # sum up cumulative probability lists
         c_probs2=np.cumsum(np.array(probs2)).tolist()
-        
-        #print [round(x,2) for x in c_probs1  ] 
 
-        #print c_probs1
+
+## SET PARAMETERS BASED ON CHANNEL TYPE
+
+        #stabilizerType=channel
+        positions_1= self.positions_P1 if channel=="plaquette" else self.positions_S1
+        positions_2= self.positions_P2 if channel=="plaquette" else self.positions_S2
+        
         
         self.errors_P1=[]                                # generate lists of errors and lies to be applied
         self.errors_P2=[]
-        for i in range(self.N_P/2):                      # Select random error for each stabilizer to 
+        for i in range(len(positions_1)):                      # Select random error for each stabilizer to 
             rand1=random.random()
             rand2=random.random()                       # be measured
             
@@ -418,20 +507,14 @@ class PlanarLattice:
                     self.errors_P2+=[errors2[0]]
             
                 
-## SET PARAMETERS BASED ON CHANNEL TYPE
 
-        #stabilizerType=channel
-        positions_1= self.positions_P1 if channel=="plaquette" else self.positions_S1
-        positions_2= self.positions_P2 if channel=="plaquette" else self.positions_S2
-
-########################################################
+##########################################################
 ######              ROUND ONE               ############
 ########################################################
         for i in range(len(positions_1)):
             pos=positions_1[i]
             error_p=self.errors_P1[i]                        
-            self.stabilizer(channel,pos,error_p,1)
-#        self.__constructLists()
+            self.stabilizer(channel,pos,error_p,1,stabilizersNotComplete)
                                 
 ########################################################
 ######              ROUND TWO               ############
@@ -439,7 +522,7 @@ class PlanarLattice:
         for i in range(len(positions_2)):  
             pos=positions_2[i]
             error_p=self.errors_P2[i]                     
-            self.stabilizer(channel,pos,error_p,2)
+            self.stabilizer(channel,pos,error_p,2,stabilizersNotComplete)
 
               
         ### Update array etc.
