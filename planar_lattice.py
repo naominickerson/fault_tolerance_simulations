@@ -29,6 +29,10 @@ import numpy as np
 #	measureNoisyStars()
 
 class PlanarLattice:
+    
+    """
+    Planar lattice class
+    """
 
     def __init__(self,size):
 
@@ -72,27 +76,19 @@ class PlanarLattice:
         self.positions_edge_S_B_1=[(2*size,y) for y in range(2*(size%2)+1,2*size,4)]
         self.positions_edge_S_B_2=[(2*size,y) for y in range(2*((size+1)%2)+1,2*size,4)]
 
-        ## Initialise empty lists to contain qubit and stabilizer values       
+        ## Initialise lists to contain qubit and stabilizer values       
 
-        self.qubits=[[1]*2 for _ in range(self.N_Q)]
-        self.full_P=[0]*self.N_full_P
-        self.full_S=[0]*self.N_full_P
-        self.edge_P_L=[0]*self.N_edge_P
-        self.edge_P_R=[0]*self.N_edge_P       
-        self.edge_S_T=[0]*self.N_edge_P
-        self.edge_S_B=[0]*self.N_edge_P
+        self.qubits=[[1,1] for _ in range(self.N_Q)]
+        self.full_P=[1]*self.N_full_P
+        self.full_S=[1]*self.N_full_P
+        self.edge_P_L=[1]*self.N_edge_P
+        self.edge_P_R=[1]*self.N_edge_P       
+        self.edge_S_T=[1]*self.N_edge_P
+        self.edge_S_B=[1]*self.N_edge_P
 
         ## Initialise array
 
         self.array=[[1]*(2*self.size+1) for _ in range(2*self.size+1)]
-
-       
-
- 
-
-
-
-    def constructArray(self):
 
         for i in range(self.N_Q):
             self.array[self.positions_Q[i][0]][self.positions_Q[i][1]]=self.qubits[i]
@@ -106,50 +102,67 @@ class PlanarLattice:
             self.array[self.positions_edge_P_R[i][0]][self.positions_edge_P_R[i][1]]=self.edge_P_R[i]
             self.array[self.positions_edge_S_T[i][0]][self.positions_edge_S_T[i][1]]=self.edge_S_T[i]
             self.array[self.positions_edge_S_B[i][0]][self.positions_edge_S_B[i][1]]=self.edge_S_B[i]
-        
-    def constructLists(self):
+     
+ 
 
-        self.full_S=[]
-        for pos in self.positions_full_S:
-            self.full_S+=[self.array[pos[0]][pos[1]]]
 
-        self.edge_S_T=[]
-        for pos in self.positions_edge_S_T:
-            self.edge_S_T+=[self.array[pos[0]][pos[1]]]
 
-        self.edge_S_B=[]
-        for pos in self.positions_edge_S_B:
-            self.edge_S_B+=[self.array[pos[0]][pos[1]]]
-
-        self.full_P=[]
-        for pos in self.positions_full_P:
-            self.full_P+=[self.array[pos[0]][pos[1]]]
-
-        self.edge_P_L=[]
-        for pos in self.positions_edge_P_L:
-            self.edge_P_L+=[self.array[pos[0]][pos[1]]]
-
-        self.edge_P_R=[]
-        for pos in self.positions_edge_P_R:
-            self.edge_P_R+=[self.array[pos[0]][pos[1]]]
-
-        self.qubits=[]
-        for pos in self.positions_Q:
-            self.qubits+=[self.array[pos[0]][pos[1]]]
-       
-               
+##    def constructArray(self):
+##
+##        for i in range(self.N_Q):
+##            self.array[self.positions_Q[i][0]][self.positions_Q[i][1]]=self.qubits[i]
+##
+##        for i in range(self.N_full_P):
+##            self.array[self.positions_full_P[i][0]][self.positions_full_P[i][1]]=self.full_P[i]
+##            self.array[self.positions_full_S[i][0]][self.positions_full_S[i][1]]=self.full_S[i]
+##            
+##        for i in range(self.N_edge_P):
+##            self.array[self.positions_edge_P_L[i][0]][self.positions_edge_P_L[i][1]]=self.edge_P_L[i]
+##            self.array[self.positions_edge_P_R[i][0]][self.positions_edge_P_R[i][1]]=self.edge_P_R[i]
+##            self.array[self.positions_edge_S_T[i][0]][self.positions_edge_S_T[i][1]]=self.edge_S_T[i]
+##            self.array[self.positions_edge_S_B[i][0]][self.positions_edge_S_B[i][1]]=self.edge_S_B[i]
+##        
+##    def constructLists(self):
+##
+##        self.full_S=[]
+##        for pos in self.positions_full_S:
+##            self.full_S+=[self.array[pos[0]][pos[1]]]
+##
+##        self.edge_S_T=[]
+##        for pos in self.positions_edge_S_T:
+##            self.edge_S_T+=[self.array[pos[0]][pos[1]]]
+##
+##        self.edge_S_B=[]
+##        for pos in self.positions_edge_S_B:
+##            self.edge_S_B+=[self.array[pos[0]][pos[1]]]
+##
+##        self.full_P=[]
+##        for pos in self.positions_full_P:
+##            self.full_P+=[self.array[pos[0]][pos[1]]]
+##
+##        self.edge_P_L=[]
+##        for pos in self.positions_edge_P_L:
+##            self.edge_P_L+=[self.array[pos[0]][pos[1]]]
+##
+##        self.edge_P_R=[]
+##        for pos in self.positions_edge_P_R:
+##            self.edge_P_R+=[self.array[pos[0]][pos[1]]]
+##
+##        self.qubits=[]
+##        for pos in self.positions_Q:
+##            self.qubits+=[self.array[pos[0]][pos[1]]]
+##       
+##               
 
 
     def showArray(self,arrayType,channel=0):
 
         c=0 if channel=="X" else 1
         
-        if arrayType=="errors":            
-            
+        if arrayType=="errors":                        
             print_array=[[x[c] if isinstance(x,list) else 0 for x in row]for row in self.array]
 
         if arrayType=="stabilizers":
-
             print_array=[[x if isinstance(x,int) else 0 for x in row] for row in self.array]
 
         
@@ -189,18 +202,23 @@ class PlanarLattice:
 
 
     def applyRandomErrors(self,pX,pZ):
+        """ applies random X and Z errors to every qubit in the array 
 
-        for i in range(self.N_Q):
+        Parameters:
+        ----------
+        pX -- probability of X error
+        pZ -- probability of Z error
 
+        """
+        for q0,q1 in self.positions_Q:
             rand1=random.random()
             rand2=random.random()
 
             if rand1<pX:
-                self.qubits[i][0]*=-1
+                self.array[q0][q1][0]*=-1
             if rand2<pZ:
-                self.qubits[i][1]*=-1
+                self.array[q0][q1][1]*=-1
 
-        self.constructArray()
 
     def findAnyons(self):
   
@@ -405,7 +423,7 @@ class PlanarLattice:
     def measureNoisyStabilizers(self,channel,errorVector3,errorVector4,stabilizersNotComplete=0):
 
         if channel!="plaquette" and channel!="star":
-            print "OOPS!: channel must be either *plaquette* or *star*"
+            print "ERROR!: channel must be either *plaquette* or *star*"
             return 0;
 
         # generate a list of errors to apply from the two error vectors
