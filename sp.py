@@ -18,7 +18,7 @@ home = os.environ['HOME']
 
 
 import perfect_matching
-#import perfect_matching_1403 as perfect_matching
+#import perfect_matching_1203 as perfect_matching
 
 
 
@@ -113,7 +113,7 @@ testvec3=[0.96288, 0.003438, 0.00132, 0.00132, 0.000002, 0.000006,
 
 
 
-def run2D(size=4,p=0.03,pLie=0):
+def run2D(size=4,p=0.03,pLie=0,showArray=False):
 
    L=planar_lattice.PlanarLattice(size)
 
@@ -135,9 +135,10 @@ def run2D(size=4,p=0.03,pLie=0):
    
    L.apply_matching("X",matchingX)
    L.apply_matching("Z",matchingZ)
-
-   L.showArrayText("errors","X")
-   L.showArrayText("errors","Z")
+   
+   if showArray==True:
+      L.showArrayText("errors","X")
+      L.showArrayText("errors","Z")
 
    return L.measure_logical()
 
@@ -147,6 +148,7 @@ def run2D(size=4,p=0.03,pLie=0):
 
 
 def run3Drandom(size=4,tSteps=5,p=0.05,pLie=0.00,timespace = [1,1],showTextArray=False):
+
    t0 = time.time()
    L=planar_lattice.PlanarLattice(size)
    PL=planar_lattice.PlanarLattice3D(size)
@@ -214,7 +216,7 @@ def run3Drandom(size=4,tSteps=5,p=0.05,pLie=0.00,timespace = [1,1],showTextArray
 
 
 
-def run3D(size=8,tSteps=20,errorVec3 = testvec4, errorVec4=testvec4,timespace=[1,1],boundary_weight = 1,stabilizersNotComplete=0):
+def run3D(size=4,tSteps=5,errorVec3 = testvec4, errorVec4=testvec4,timespace=[1,1],boundary_weight = 1,stabilizersNotComplete=0):
 
 
    t0 = time.time()
@@ -232,6 +234,7 @@ def run3D(size=8,tSteps=20,errorVec3 = testvec4, errorVec4=testvec4,timespace=[1
         L.measureNoisyStabilizers("star",errorVec3,errorVec4,stabilizersNotComplete)                                
         PL.addMeasurement(L)         # add the updated 2D lattice to 3D array
 
+#        L.showArrayText("stabs")
 
    L.measurePlaquettes(0)                      # measure one more layer with
    L.measureStars(0)                           # perfect stabilizers and add

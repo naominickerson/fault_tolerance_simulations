@@ -363,7 +363,7 @@ class PlanarLattice:
             
         c=0 if channel=="plaquette" else 1
         
-          
+        
         p=pos
         if sType=="F":
             stabQubits=((p[0],p[1]-1),(p[0],p[1]+1),(p[0]-1,p[1]),(p[0]+1,p[1]))

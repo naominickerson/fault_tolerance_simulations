@@ -30,6 +30,10 @@ import arrayMaker
 #	measureNoisyStars()
 
 class PlanarLattice:
+    """ 
+    Planar Lattice Class. 
+    """
+
 
     def __init__(self,size):
 
