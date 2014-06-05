@@ -4,29 +4,10 @@ import copy
 import itertools
 import numpy as np
 
+#For using .showArray() function uncomment this
 #import matplotlib.pyplot as plt
 
 
-##INFO:
-##   Errors stored in an array, each entry represents either 
-##   a qubit: [xError?,zError?] with xError,zError in {1,-1}
-##   a stabiliser: star or plaquette depending on location with S in {1,-1}
-
-
-
-### PlanarLattice
-
-### Associated Methods:
-
-# 	constructArray()
-#	constructLists()	information is stored in two ways in the lattice and these operations convert between the two
-
-#	showArray(arrayType="stabilizers" or "errors", channel ="X" or "Z")
-
-#	measurePlaquettes(pLie)
-#	measureStars(pLie)
-#	measureNoisyPlaquettes()
-#	measureNoisyStars()
 
 # generate a list of errors to apply from the two error vectors
 I,X,Y,Z=[1,1],[-1,1],[-1,-1],[1,-1]
@@ -55,9 +36,45 @@ errorListS2=[[1,[I,I]],[1,[I,X]],[-1,[I,Z]],[-1,[I,Y]],
             [1,[I,Z]],[1,[I,Y]],[-1,[Z,Z]],[-1,[Z,Y]],
             [-1,[Y,Y]],[1,[Z,X]],[1,[Y,X]],[-1,[X,X]]]
 
+""" 2D version of the Toric Lattice
+	
+Input Parameters: 
+-----------------
+size --> dimension of the lattice
+	
+Data Array:
+----------
+
+STAR -- Q -- STAR -- Q -- STAR -- Q --
+|            |            | 
+|            |            |
+Q    PLAQ    Q    PLAQ    Q    PLAQ
+|            |            |
+|            |            |
+PLAQ -- Q -- STAR -- Q -- STAR -- Q --
+|            |            | 
+|            |            |
+Q    PLAQ    Q    PLAQ    Q    PLAQ
+|            |            |
+|            |            |
+PLAQ -- Q -- STAR -- Q -- STAR -- Q --
+|            |            |
+|            |            |
+
+PLAQ and STAR positions store the value of the most recent
+stabilizer measurement. They can take a value of 0 or 1. 
+
+Q(ubit) positions store the state of a qubit, a list: [x,z] x,z in {1,-1} 
+	
+"""
+
+
+    
 class PlanarLattice:
+    """2D version of the toric lattice"""
 
     def __init__(self,size):
+    
 
         self.size=size
         
@@ -84,42 +101,17 @@ class PlanarLattice:
         self.positions_anyons_S=None
 
        
-        ## Initialise empty lists to contain qubit and stabilizer values       
-
-        self.qubits=[[1]*2 for _ in range(self.N_Q)]
-        self.plaq=[1]*self.N_P
-        self.star=[1]*self.N_P
-       
         ## Initialise array
 
-        self.array=[[[1,1]]*(2*self.size) for _ in range(2*self.size)]
-
-       
-
-    def __constructArray(self):
-
+        self.array=[[0 for x in range(2*self.size)] for _ in range(2*self.size)]
         for i in range(self.N_Q):
-            self.array[self.positions_Q[i][0]][self.positions_Q[i][1]]=self.qubits[i]
+            self.array[self.positions_Q[i][0]][self.positions_Q[i][1]]=[1,1]
 
         for i in range(self.N_P):
-            self.array[self.positions_P[i][0]][self.positions_P[i][1]]=self.plaq[i]
-            self.array[self.positions_S[i][0]][self.positions_S[i][1]]=self.star[i]
-            
-    def __constructLists(self):
+            self.array[self.positions_P[i][0]][self.positions_P[i][1]]=1
+            self.array[self.positions_S[i][0]][self.positions_S[i][1]]=1
 
-        self.star=[]
-        for pos in self.positions_S:
-            self.star+=[self.array[pos[0]][pos[1]]]
 
-        self.plaq=[]
-        for pos in self.positions_P:
-            self.plaq+=[self.array[pos[0]][pos[1]]]
-
-        self.qubits=[]
-        for pos in self.positions_Q:
-            self.qubits+=[self.array[pos[0]][pos[1]]]
-       
-               
 
     def showArray(self,arrayType,channel=0):
         """ displays the current state as an array plot
@@ -133,7 +125,6 @@ class PlanarLattice:
         if arrayType=="stabilizers":
 
             print_array=[[x if isinstance(x,int) else 0 for x in row] for row in self.array]
-
         
         plt.imshow(print_array)
         plt.show()
@@ -153,13 +144,9 @@ class PlanarLattice:
 
         
         if arrayType in ["error","errors","Errors","Error"]: 
-
             print_array = [[str(x[c]) if isinstance(x,list) else '.' for x in row] for row in self.array]
-#            print_array = [[str(channel) if x=='-1' else x for x in row] for row in print_array]
-
         
         elif arrayType in ["stabilizers","stabs","stabilisers","stabilizer","stabiliser"]:
-        
             print_array = [[str(x) if isinstance(x,int) else '.' for x in row] for row in self.array]
 
         elif arrayType in ["all","both"]:
@@ -187,69 +174,83 @@ class PlanarLattice:
 
 
     def measurePlaquettes(self,pLie=0):
-        
-##        for p0,p1 in self.positions_P:
-##            m=2*self.size
-##            stabQubits=((p0,(p1-1)%m),(p0,(p1+1)%m),((p0-1)%m,p1),((p0+1)%m,p1))
-##            
-##            stab=1
-##            for s0,s1 in stabQubits:
-##                stab*=self.array[s0][s1][0]
-##
-##                
-##            rand = random.random()
-##            if rand>pLie: stab*=-1
-##
-##            self.array[p0][p1]=stab
-##
+        """ calculates the value of each plaquette stabilizer given a fixed probability of lying
 
-        for i in range(self.N_P):
+        Parameters:
+        -----------
+        pLie --> lie probability. Default: 0
 
-            pos=self.positions_P[i]
-            m=2*self.size
-            stabQubits=((pos[0],(pos[1]-1)%m),(pos[0],(pos[1]+1)%m),((pos[0]-1)%m,pos[1]),((pos[0]+1)%m,pos[1]))
+        Returns:
+        --------
+        self.array is updated with the new plaquette values
+        """
 
+        m=2*self.size
+
+        for p0,p1 in self.positions_P:
+            
+            stabQubits=((p0,(p1-1)%m),(p0,(p1+1)%m),((p0-1)%m,p1),((p0+1)%m,p1))
+            
+#            print "(%d,%d) --> ("%(p0,p1),
             stab=1
-            for j in range(4):    
-                stab*=self.array[stabQubits[j][0]][stabQubits[j][1]][0]
+            for s0,s1 in stabQubits:
+                stab*=self.array[s0][s1][0]
+#                print self.array[s0][s1][0],",",
+            
+#            print ") --> %d"%(stab,),            
+                
+            rand = random.random()
+            if rand<pLie: 
+                stab*=-1
+#                print " --> LIE "
+#            else:
+#                print 
 
-            rand=random.random()
-            stab*=1 if rand>pLie else -1
-               
-            self.plaq[i]=stab
-  
-        self.__constructArray()
+            self.array[p0][p1]=stab
 
 
     def measureStars(self,pLie=0):      
-       
-        for i in range(self.N_P):
+        """ calculates the value of each star stabilizer given a fixed probability of lying
 
-            pos=self.positions_S[i]
-            m=2*self.size
-            stabQubits=((pos[0],(pos[1]-1)%m),(pos[0],(pos[1]+1)%m),((pos[0]-1)%m,pos[1]),((pos[0]+1)%m,pos[1]))
+        Parameters:
+        -----------
+        pLie --> lie probability. Default: 0
 
+        Returns:
+        --------
+        self.array is updated with the new star values
+        """
+
+        m=2*self.size
+
+        for p0,p1 in self.positions_S:
+            stabQubits=((p0,(p1-1)%m),(p0,(p1+1)%m),((p0-1)%m,p1),((p0+1)%m,p1))
+            
             stab=1
-            for j in range(4):    
-                stab*=self.array[stabQubits[j][0]][stabQubits[j][1]][1]
+            for s0,s1 in stabQubits:
+                stab*=self.array[s0][s1][1]
+            
+            rand = random.random()
+            if rand<pLie: stab*=-1
 
-            rand=random.random()
-            stab*=1 if rand>pLie else -1
-                        
-            self.star[i]=stab
-
-
-        self.__constructArray()
-
+            self.array[p0][p1]=stab
 
 
     def apply_matching(self,error_type,matching):
+        """ For correction of a 2D array. Pauli X or Z flips applied to return state to the codespace according to the given matching.
+        
+        Params:
+        ------
+        error_type --> which channel should the matching be applied to, X or Z
+        matching --> list of pairs of anyon positions
+        """
 
-
-        channel=0 if error_type=="X" else 1
+        if error_type in ["X","x",0]: channel=0
+        elif error_type in ["Z","z",1]: channel =1
+        else: 
+            raise ValueError('valid error types are "X" or "Z"')
         
         flips=[]
-        
         for pair in matching:
             
             [p0,p1]=pair[0]
@@ -282,22 +283,27 @@ class PlanarLattice:
         for flip in flips:
             self.array[flip[0]][flip[1]][channel]*=-1
 
-        self.__constructLists()
+
             
 
                 
     def apply_flip_array(self,channel,flip_array):
-
-        c=0 if channel=="X" else 1
+        
+        if channel in ["X","x",0]: c=0
+        elif channel in ["Z","z",1]: c=1
+        else: 
+            raise ValueError('channel must be X or Z')
 
         for (x0,x1) in self.positions_Q:
             self.array[x0][x1][c]*=flip_array[x0][x1]       
 
-        self.__constructArray()
-
+ 
 
     def applyRandomErrors(self,pX,pZ):
-
+        """ Applies random X and Z errors with the given probabilites to all qubits.
+        
+        The qubit values in self.array are updated.
+        """
         for q0,q1 in self.positions_Q:
             rand1=random.random()
             rand2=random.random()
@@ -307,27 +313,19 @@ class PlanarLattice:
 #                print "X error applied at position: ",q0,",",q1,"new value is ",self.array[q0][q1]
             if rand2<pZ:
                 self.array[q0][q1][1]*=-1
-        
-##
-##        for i in range(self.N_Q):
-##
-##            rand1=random.random()
-##            rand2=random.random()
-##
-##            if rand1<pX:
-##                self.qubits[i][0]=-self.qubits[i][0]
-##            if rand2<pZ:
-##                self.qubits[i][1]=-self.qubits[i][1]
-##
-##        self.__constructArray()
-##
-
   
         
 
 
     def findAnyons(self):
-
+        """ Locates all the '-1' stabilizer outcomes in the 2D array
+        
+        Returns:
+        -------
+        No return value. The list of anyon positions is stored in the 
+        variable self.positions_anyons_P(S).
+ 
+        """
         anyon_positions_S=[]
         anyon_positions_P=[]
         
@@ -344,7 +342,20 @@ class PlanarLattice:
 
 
     def measure_logical(self):
+        """ measures the logical state of the array
+        
+        Assumes: 
+        -------
+        That the array is in the code space. That is, if all stabilizers
+        were to be measured they should all return +1.
 
+        Returns:
+        -------
+        A list of the form [[x1,z1],[x2,z2]] where all values in {1,-1}
+        giving the logical state of the x and z components of the two 
+        encoded qubits.
+        
+        """
 
         logical_x=[1,1]
         logical_z=[1,1]
@@ -508,61 +519,28 @@ class PlanarLattice:
             
                 
 
-##########################################################
+
 ######              ROUND ONE               ############
-########################################################
+
         for i in range(len(positions_1)):
             pos=positions_1[i]
             error_p=self.errors_P1[i]                        
             self.stabilizer(channel,pos,error_p,1,stabilizersNotComplete)
                                 
-########################################################
+
 ######              ROUND TWO               ############
-########################################################
+
         for i in range(len(positions_2)):  
             pos=positions_2[i]
             error_p=self.errors_P2[i]                     
             self.stabilizer(channel,pos,error_p,2,stabilizersNotComplete)
 
               
-        ### Update array etc.
-        self.__constructLists()
-    
-        
-
-
-
-#######################################################################
-
-    
 
 
 
 
-
-
-
-
-
-
-    
-        
-
-              
-    
-
-        
-        
-        
-    
-    
-
-            
-
-
-            
-
-        
+           
 
 
 
@@ -586,6 +564,7 @@ class PlanarLattice:
 
 
 class Lattice3D:
+    """ 3D extension for the toric code """
 
     def __init__(self,size):
 
@@ -602,28 +581,6 @@ class Lattice3D:
                 
         self.definite_array_P=[[1]*self.N]
      
-##        self.positions_full_S=()
-##        self.positions_edge_S_T=()
-##        self.positions_edge_S_B=()
-##        self.positions_full_P=()
-##        self.positions_edge_P_L=()
-##        self.positions_edge_P_R=()
-## 
-##        for j in range(size):
-##            self.positions_edge_S_T+=((0,2*j+1),)
-##            self.positions_edge_S_B+=((2*size,2*j+1),)
-##            for i in range(size-1):
-##                self.positions_full_S+=((2*i+2,2*j+1),)
-##      
-##        for i in range(size):
-##            self.positions_edge_P_L+=((2*i+1,0),)
-##            self.positions_edge_P_R+=((2*i+1,2*size),)
-##            for j in range(size-1):
-##                self.positions_full_P+=((2*i+1,2*j+2),)
-          
-        #self.positions_P=self.positions_edge_P_L+self.positions_full_P+self.positions_edge_P_R
-        #self.positions_S=self.positions_edge_S_T+self.positions_full_S+self.positions_edge_S_B
-
         self.positions_S=[(x,y) for x in range(0,2*size,2) for y in range(0,2*size,2)];
         self.positions_P=[(x,y) for x in range(1,2*size,2) for y in range(1,2*size,2)]
         
@@ -632,11 +589,10 @@ class Lattice3D:
 
             
         
-#P_edge_R,P_edge_L,P_full,S_edge_T,S_edge_B,S_full
-
 
     def showTopLayer(self):
-
+        """displays the most recent layer added to the lattice"""
+       
         print_array=[[0 for x in range(2*self.size)] for y in range(2*self.size)]
         
         for i in range(len(self.positions_S)):
@@ -650,6 +606,7 @@ class Lattice3D:
 
         
     def addMeasurement(self,lat):
+        """ adds a new layer to the 3D array"""
 
         plaquette_layer=[1 for x in range(self.N)]
         star_layer=[1 for x in range(self.N)]
@@ -676,7 +633,7 @@ class Lattice3D:
         self.syndrome_S=new_syndrome_S
 
     def findAnyons(self):
-
+        """ identifies the positions of all the anyons in the parity lattice"""
         self.getTime()
         
         anyon_positions_P=()
@@ -704,35 +661,6 @@ class Lattice3D:
 
 
             
-
-##    This is no longer used, after changing to a final round
-##    Of stabilizer measurements which are PERFECT
-        
-##    def closeLattice(self):
-##        
-##        plaquette_layer= [1]*self.N
-##        star_layer     = [1]*self.N
-##
-##        new_syndrome_P=copy.copy(plaquette_layer)
-##        new_syndrome_S=copy.copy(star_layer)
-##
-##        
-##        for i in range(self.N):
-##            plaquette_layer[i]*=self.syndrome_P[i]
-##            star_layer[i]*=self.syndrome_S[i]
-##       
-##        self.parity_array_S+=[star_layer]
-##        self.parity_array_P+=[plaquette_layer]
-##
-##        self.syndrome_P=new_syndrome_P
-##        self.syndrome_S=new_syndrome_S
-##
-##
-        
-
-
-
-         
 
 
        
