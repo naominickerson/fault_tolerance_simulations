@@ -7,26 +7,12 @@ import copy
 
 import blossom5.pyMatch as pm
 
-## match_planar_3d( lattice_size, stabilizer_type, anyon_positions, time_space_weights)
-## match_toric_2D(lattice_size,anyon_positions):
-## match_toric_3D(lattice_size,anyon_positions,weights):
-## match_planar(lattice_size,stabilizer_type,anyon_positions,graph_file,output_file):
+## Functions to perform minimum weight matching on the toric and planar topological codes
+## There are 4 variants of this here to carry out the matching in the 2D and 3D (imperfect
+## measurement) cases, and for the toric and planar codes. Each takes a list of anyon_positions,
+## constructs the corresponding graph problem, and interfaces with the Blossom V algorithm (Kologomorov)
+## to perform minimum weight matching.  
 
-## 30 Oct: made changes to link between this part to generate graph and the blossom5.pyMatch code. Now pass 3 lists 
-## to this function nodes1, nodes2 and weights. new function get_matching_fast()
-
-## 11 March: noticed an edge case where the matching fails. The problem was not enough links between boundary nodes in 
-## different layers. To fix this added additional edges linking two boundary nodes.
-
-## 12/03/14: Update, the change seems to improve performance in low error region but make it worse at higher error rates
-## including significantly lowering the threshold. 
-
-
-
-## Matching functions defined here take anyon positions (in space and time) as input parameters, and performs minimum weight
-## matching using the blossom5 (Kolgomorov) to determine a matching to fix the code. 
-
-## 
 
 
 def match_planar_3D(lattice_size,stabilizer_type,anyon_positions,time_space_weights=[1,1],boundary_weight = -1 ,print_graph=False):

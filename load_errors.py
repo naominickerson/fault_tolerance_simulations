@@ -1,6 +1,14 @@
 
 
 def load(filename):
+    """ loads error vectors from the given file 
+    
+    Returns: 
+    -------
+    a tuple of two dictionaries, containing a number of error vectors. The keys
+    correspond to the rate of some physical  operation corresponding to the error 
+    vector. 
+    """
 
     f = open(filename,"r")
     data = f.readlines()
