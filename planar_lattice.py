@@ -176,6 +176,19 @@ class PlanarLattice:
                 self.array[q0][q1][1]*=-1
 
 
+    def applyRandomErrorsXYZ(self,pX,pY,pZ):
+
+        for p0,p1 in self.positions_Q:
+            if random.random()<pX: 
+                self.array[p0][p1][0]*=-1
+            if random.random()<pY: 
+                self.array[p0][p1][0]*=-1
+                self.array[p0][p1][1]*=-1
+            if random.random()<pZ:
+                self.array[p0][p1][1]*=-1
+
+
+
     def findAnyons(self):
   
         anyon_positions_x=[]

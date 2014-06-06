@@ -4,7 +4,7 @@ import os
 import time
 import math
 import copy
-import imp
+import spin_lattice
 
 import load_errors
 import planar_lattice
@@ -306,7 +306,74 @@ def run3Dphase(size=8,tSteps=8,phaseParameters=0,timespace=[1,1],boundary_weight
 
    PL=planar_lattice.PlanarLattice3D(size)
 
-   L.applyRandomErrors(0,0)   # leave this here for initialisation                                                    
+#   L.applyRandomErrors(0,0)   # leave this here for initialisation                                                    
+   
+
+   for i in range(tSteps):                     # loop over time                                                       
+
+      L.measureNoisyStabilizers("plaquette")
+      #L.measurePlaquettes(0)
+      L.applyRandomErrorsXYZ(d_error,d_error,d_error)
+       
+      L.measureNoisyStabilizers("star")
+      #L.measureStars(0) 
+      L.applyRandomErrorsXYZ(d_error,d_error,d_error)
+      PL.addMeasurement(L)         # add the updated 2D lattice to 3D array
+
+   L.measurePlaquettes(0)                      # measure one more layer with
+   L.measureStars(0)                           # perfect stabilizers and add
+   PL.addMeasurement(L)             # this to the parity Lattice
+
+   PL.findAnyons()
+   
+
+
+   matchingX=perfect_matching.match_planar_3D(size,"plaquette",PL.anyon_positions_P,timespace,boundary_weight)
+   matchingZ=perfect_matching.match_planar_3D(size,"star",PL.anyon_positions_S,timespace,boundary_weight)
+
+   flipsX=squashMatching(size,"X",matchingX)
+   flipsZ=squashMatching(size,"Z",matchingZ)
+
+
+
+   L.apply_flip_array("X",flipsX)
+   L.apply_flip_array("Z",flipsZ)
+
+
+   return L.measure_logical()
+
+
+
+
+
+
+
+def run3Dspin(size=8,tSteps=8,phaseParameters=0,timespace=[1,1],boundary_weight = 1):
+
+# choose phaseParameters=0 to take the default values (as below )
+# otherwise this should be a list of the form       [sdInPlane,sdInZ,Pj,prX,prY,prZ,initStateError,measureError]
+
+   L=spin_lattice.SpinLattice(size)
+
+
+#   generateArray(sdInPlane=0.01,sdInZ=0.01,Pj=0.0016,prX=0.01/3,prY=0.01/3,prZ=0.01/3,initStateError=0.01,measureError=0.01): Default values    
+   if phaseParameters ==0:
+      pX,pY,pZ=0.002,0.002,0.002
+      L.generateArray()
+      d_error=0
+   else: 
+      sdInPlane,sdInZ,Pj,prX,prY,prZ,initStateError,measureError,dataQubitError=phaseParameters
+#      print "sp.run3Dphase sdInZ =",sdInZ
+
+      L.generateArray(sdInPlane,sdInZ,Pj,prX,prY,prZ,initStateError,measureError)
+      d_error = dataQubitError/3.
+   
+ #     print L.errorArray[1][2][0]
+
+
+   PL=planar_lattice.PlanarLattice3D(size)
+
+#   L.applyRandomErrors(0,0)   # leave this here for initialisation                                                    
    
 
    for i in range(tSteps):                     # loop over time                                                       

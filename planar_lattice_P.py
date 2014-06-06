@@ -14,20 +14,35 @@ import arrayMaker
 ##   a stabiliser: star or plaquette depending on location with S in {1,-1}
 
 
+"""
 
-### PlanarLattice
+INFO:
+   Errors stored in an array, each entry represents either 
+   a qubit: [xError?,zError?] with xError,zError in {1,-1}
+   a stabiliser: star or plaquette depending on location with S in {1,-1}
 
-### Associated Methods:
 
-# 	constructArray()
-#	constructLists()	information is stored in two ways in the lattice and these operations convert between the two
+Data structure: 
+       top          top
+  Q -- STAR -- Q -- STAR -- Q -- 
+        |            |
+ left   |            |
+ PLAQ   Q    PLAQ    Q    PLAQ
+        |            |
+        |            |
+  Q -- STAR -- Q -- STAR -- Q --
+        |            |
+ left   |            |
+ PLAQ   Q    PLAQ    Q    PLAQ
+        |            |
+        |            |
+  Q -- STAR -- Q -- STAR -- Q --
+        |            |
+        |            |
 
-#	showArray(arrayType="stabilizers" or "errors", channel ="X" or "Z")
+ 
+"""
 
-#	measurePlaquettes(pLie)
-#	measureStars(pLie)
-#	measureNoisyPlaquettes()
-#	measureNoisyStars()
 
 class PlanarLattice:
     """ 
@@ -71,31 +86,33 @@ class PlanarLattice:
         self.edge_S_T=[0]*self.N_edge_P
         self.edge_S_B=[0]*self.N_edge_P
 
+
         ## Initialise array
 
         self.array=[[1]*(2*self.size+1) for _ in range(2*self.size+1)]
 
+        for p0,p1 in self.positions_Q: self.array[p0][p1]=[1,1]
+        for p0,p1 in self.positions_P: self.array[p0][p1]=1
+        for p0,p1 in self.positions_S: self.array[p0][p1]=1
+ 
         self.errorArray=None
 
- 
 
-
-
-    def constructArray(self):
-
-        for i in range(self.N_Q):
-            self.array[self.positions_Q[i][0]][self.positions_Q[i][1]]=self.qubits[i]
-
-        for i in range(self.N_full_P):
-            self.array[self.positions_full_P[i][0]][self.positions_full_P[i][1]]=self.full_P[i]
-            self.array[self.positions_full_S[i][0]][self.positions_full_S[i][1]]=self.full_S[i]
-            
-        for i in range(self.N_edge_P):
-            self.array[self.positions_edge_P_L[i][0]][self.positions_edge_P_L[i][1]]=self.edge_P_L[i]
-            self.array[self.positions_edge_P_R[i][0]][self.positions_edge_P_R[i][1]]=self.edge_P_R[i]
-            self.array[self.positions_edge_S_T[i][0]][self.positions_edge_S_T[i][1]]=self.edge_S_T[i]
-            self.array[self.positions_edge_S_B[i][0]][self.positions_edge_S_B[i][1]]=self.edge_S_B[i]
-        
+#    def constructArray(self):
+#
+#        for i in range(self.N_Q):
+#            self.array[self.positions_Q[i][0]][self.positions_Q[i][1]]=self.qubits[i]
+#
+#        for i in range(self.N_full_P):
+#            self.array[self.positions_full_P[i][0]][self.positions_full_P[i][1]]=self.full_P[i]
+#            self.array[self.positions_full_S[i][0]][self.positions_full_S[i][1]]=self.full_S[i]
+#            
+#        for i in range(self.N_edge_P):
+#            self.array[self.positions_edge_P_L[i][0]][self.positions_edge_P_L[i][1]]=self.edge_P_L[i]
+#            self.array[self.positions_edge_P_R[i][0]][self.positions_edge_P_R[i][1]]=self.edge_P_R[i]
+#            self.array[self.positions_edge_S_T[i][0]][self.positions_edge_S_T[i][1]]=self.edge_S_T[i]
+#            self.array[self.positions_edge_S_B[i][0]][self.positions_edge_S_B[i][1]]=self.edge_S_B[i]
+#        
     def constructLists(self):
 
         self.full_S=[]
@@ -144,6 +161,26 @@ class PlanarLattice:
         plt.imshow(print_array)
         plt.show()
 
+
+
+
+    def applyRandomErrors(self,pX,pZ):
+        """ applies random X and Z errors to every qubit in the array 
+
+        Parameters:
+        ----------
+        pX -- probability of X error
+        pZ -- probability of Z error
+
+        """
+        for q0,q1 in self.positions_Q:
+            rand1=random.random()
+            rand2=random.random()
+
+            if rand1<pX:
+                self.array[q0][q1][0]*=-1
+            if rand2<pZ:
+                self.array[q0][q1][1]*=-1
 
 
     def applyRandomErrors(self,pX,pZ):
