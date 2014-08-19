@@ -284,21 +284,21 @@ def run3D(size=4,tSteps=5,errorVec3 = testvec4, errorVec4=testvec4,timespace=[1,
 def run3Dphase(size=8,tSteps=8,phaseParameters=0,timespace=[1,1],boundary_weight = 1):
 
 # choose phaseParameters=0 to take the default values (as below )
-# otherwise this should be a list of the form       [sdInPlane,sdInZ,Pj,prX,prY,prZ,initStateError,measureError]
+# otherwise this should be a list of the form       [sdInX,sdInYsdInZ,Pj,prX,prY,prZ,initStateError,measureError]
 
    L=planar_lattice_P.PlanarLattice(size)
 
 
-#   generateArray(sdInPlane=0.01,sdInZ=0.01,Pj=0.0016,prX=0.01/3,prY=0.01/3,prZ=0.01/3,initStateError=0.01,measureError=0.01): Default values    
+#   generateArray(sdInX=0.01,sdInY=0.01,sdInZ=0.01,Pj=0.0016,prX=0.01/3,prY=0.01/3,prZ=0.01/3,initStateError=0.01,measureError=0.01): Default values    
    if phaseParameters ==0:
       pX,pY,pZ=0.002,0.002,0.002
       L.generateArray()
       d_error=0
    else: 
-      sdInPlane,sdInZ,Pj,prX,prY,prZ,initStateError,measureError,dataQubitError=phaseParameters
+      sdInX,sdInY,sdInZ,Pj,prX,prY,prZ,initStateError,measureError,dataQubitError=phaseParameters
 #      print "sp.run3Dphase sdInZ =",sdInZ
 
-      L.generateArray(sdInPlane,sdInZ,Pj,prX,prY,prZ,initStateError,measureError)
+      L.generateArray(sdInX,sdInY,sdInZ,Pj,prX,prY,prZ,initStateError,measureError)
       d_error = dataQubitError/3.
    
  #     print L.errorArray[1][2][0]
@@ -348,24 +348,24 @@ def run3Dphase(size=8,tSteps=8,phaseParameters=0,timespace=[1,1],boundary_weight
 
 
 
-def run3Dspin(size=8,tSteps=8,phaseParameters=0,timespace=[1,1],boundary_weight = 1):
+def run3Dspin(size=8,errortype='normal',orbit='abrupt',tSteps=8,phaseParameters=0,timespace=[1,1],boundary_weight = 1):
 
 # choose phaseParameters=0 to take the default values (as below )
-# otherwise this should be a list of the form       [sdInPlane,sdInZ,Pj,prX,prY,prZ,initStateError,measureError]
+# otherwise this should be a list of the form       [sdInX,sdInYsdInZ,Pj,prX,prY,prZ,initStateError,measureError]
 
    L=spin_lattice.SpinLattice(size)
 
 
-#   generateArray(sdInPlane=0.01,sdInZ=0.01,Pj=0.0016,prX=0.01/3,prY=0.01/3,prZ=0.01/3,initStateError=0.01,measureError=0.01): Default values    
+#   generateArray(sdInX=0.01,sdInY=0.01,sdInZ=0.01,Pj=0.0016,prX=0.01/3,prY=0.01/3,prZ=0.01/3,initStateError=0.01,measureError=0.01): Default values    
    if phaseParameters ==0:
       pX,pY,pZ=0.002,0.002,0.002
       L.generateArray()
       d_error=0
    else: 
-      sdInPlane,sdInZ,Pj,prX,prY,prZ,initStateError,measureError,dataQubitError=phaseParameters
+      sdInX,sdInY,sdInZ,Pj,prX,prY,prZ,initStateError,measureError,dataQubitError=phaseParameters
 #      print "sp.run3Dphase sdInZ =",sdInZ
 
-      L.generateArray(sdInPlane,sdInZ,Pj,prX,prY,prZ,initStateError,measureError)
+      L.generateArray(errortype,orbit,sdInX,sdInY,sdInZ,Pj,prX,prY,prZ,initStateError,measureError)
       d_error = dataQubitError/3.
    
  #     print L.errorArray[1][2][0]
@@ -373,7 +373,7 @@ def run3Dspin(size=8,tSteps=8,phaseParameters=0,timespace=[1,1],boundary_weight 
 
    PL=planar_lattice.PlanarLattice3D(size)
 
-#   L.applyRandomErrors(0,0)   # leave this here for initialisation                                                    
+   L.applyRandomErrors(0,0)   # leave this here for initialisation                                                    
    
 
    for i in range(tSteps):                     # loop over time                                                       
