@@ -12,9 +12,9 @@ class SpinLattice(PlanarLattice):
         self.errorArray=None
 
     
-    def generateArray(self,sdInPlane=0.01,sdInZ=0.01,Pj=0.0016,prX=0.01/3,prY=0.01/3,prZ=0.01/3,initStateError=0.01,measureError=0.01):
+    def generateArray(self,errortype='normal',orbit='abrupt',sdInX=0.01,sdInY=0.01,sdInZ=0.01,Pj=0.0016,prX=0.01/3,prY=0.01/3,prZ=0.01/3,initStateError=0.01,measureError=0.01):
         """ function to generation a random array of spins"""
-        self.errorArray=arrayMaker.generateArray(2*self.size+3,sdInPlane,sdInZ,Pj,prX,prY,prZ,initStateError,measureError)
+        self.errorArray=arrayMaker.generateArray(2*self.size+3,errortype,orbit,sdInX,sdInY,sdInZ,Pj,prX,prY,prZ,initStateError,measureError)
 
 
 
@@ -73,11 +73,15 @@ class SpinLattice(PlanarLattice):
 
 
         E,O,I,X,Y,Z=1,-1,[1,1],[-1,1],[-1,-1],[1,-1]
-        errorList = [[E, I, I, I, I],[E, I ,I, I, Z],[E, I, I, Z, I],[E, I, I, Z, Z],
+        if c==1: errorList = [[E, I, I, I, I],[E, I ,I, I, Z],[E, I, I, Z, I],[E, I, I, Z, Z],
                      [E, I, Z, I, I],[E, I, Z, I, Z ],[E, I, Z, Z, I],[E, Z, I, I, I],
                      [O, I, I, I, I],[O, I, I, I, Z],[O, I, I, Z, I],[O, I, I, Z, Z],
                      [O, I, Z, I, I],[O, I, Z, I, Z],[O, I, Z, Z, I ],[O, Z, I, I, I ]]
 
+        if c==0: errorList=[[E, I, I, I, I],[E, I ,I, I, X],[E, I, I, X, I],[E, I, I, X, X],
+                     [E, I, X, I, I],[E, I, X, I, X ],[E, I, X, X, I],[E, X, I, I, I],
+                     [O, I, I, I, I],[O, I, I, I, X],[O, I, I, X, I],[O, I, I, X, X],
+                     [O, I, X, I, I],[O, I, X, I, X],[O, I, X, X, I ],[O, X, I, I, I ]]    
         # set the error vector
         errorVector = self.errorArray[p[0]][p[1]][stabc]
 

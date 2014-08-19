@@ -1,27 +1,42 @@
 import sp
-
 import random
-import load_errors 
+import sys
+import os
+import imp
+import load_errors
 
-n_trials = 20
-size=6
-tSteps=5
+home = os.environ['HOME']
+sp = imp.load_source('sp','%s/perfect_matching-master-3/sp.py'%home)
 
 random.seed(0)
 
+try:
+    size, errortype, tSteps, sd, output_file = sys.argv[1:]
+    size = int(size)
+    errortype=str(errortype)
+    tSteps=int(tSteps)
+    sd = float(sd)
+except:
+    print "Usage: [size] [errortype] [tSteps] [sdPlane] [output_file] "
+    sys.exit(-1)
 
+#run3Dspin(size,errortype,tsteps,[sdInX,sdInY,sdInZ,jitter,pX,pY,pZ,prep,meas,data],[time,space],edge)
 
-#def run3Dphase(size=8,tSteps=8,phaseParameters=0,timespace=[1,1],boundary_weight = 1):
+X,Z,Q = 0,0,0
 
+n_trials=1500
+timeweight=1400
+boundary=1200
 
-success_count = 0
 for i in range(n_trials):
-    [x,z] = sp.run3Dspin(size,tSteps)
+    [x,z] = sp.run3Dspin(size,errortype,tSteps,[sd,sd,0.5*sd,0.0004,0.001/3,0.001/3,0.001/3,0.01,0.05,0.002],[1000,timeweight],boundary)
 
-    if x==1 and z==1: success_count+=1
+    X+= 1 if x==1 else 0
+    Z+= 1 if z==1 else 0
+    Q += 1 if x == 1 and z ==1 else 0
 
 
-print 'lattice size: ',size
-print 'time steps: ', tSteps
-print 
-print success_count,' /',n_trials,' were successfully decoded: ',success_count
+f = open(output_file, 'a')
+f.write("%d %f %d %d %d %d| %d %d %d\n"%(size, sd, n_trials, tSteps,timeweight,boundary, X, Z, Q))
+f.close()
+
