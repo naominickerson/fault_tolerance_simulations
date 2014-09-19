@@ -20,11 +20,11 @@ sd=0.1
 X,Z,Q = 0,0,0
 
 n_trials=1500
-timeweight=1400
+spaceweight=1400
 boundary=1200
 
 for i in range(n_trials):
-    [x,z] = sp.run3Dspin(size,errortype,orbit, tSteps,[sd,sd,0.5*sd,0.0004,0.001/3,0.001/3,0.001/3,0.01,0.05,0.002],[1000,timeweight],boundary)
+    [x,z] = sp.run3Dspin(size,errortype,orbit, tSteps,[sd,sd,0.5*sd,0.0004,0.001/3,0.001/3,0.001/3,0.01,0.05,0.002],[1000,spaceweight],boundary)
 
     X+= 1 if x==1 else 0
     Z+= 1 if z==1 else 0
