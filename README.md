@@ -60,13 +60,46 @@ would correspond to the case where a Z flip had occurred on the logical qubit af
 
 ## Error described by a stabilizer superoperator
 
-This variant of the code puts a more general form of errors into the code, characterised by the superoperator describing the true (noisy) process of measuring each stabilizer. This superoperator provides a full description of the noisy measurement, and if physical errors are made up of randomly applied Pauli operations, this superoperator can be decomposed into Kraus operators that are simply some product of Pauli operations on the qubits in the stabilizer. For more detail see (?)
+This variant of the code puts a more general form of errors into the code, characterised by the superoperator describing the true (noisy) process of measuring each stabilizer. This superoperator provides a full description of the noisy measurement, and if physical errors are made up of randomly applied Pauli operations, this superoperator can be decomposed into Kraus operators that are simply some product of Pauli operations on the qubits in the stabilizer combined with a possible misreported stabilizer outcome. For more detail see (?)
 
 This superoperator decomposition is specified through a text file of the form found in ``` example_error_vec.txt ```. 
 
 #Toric Code
 
+For the toric code, all stabilizer measurements are 4 body operations, so only one superoperator must be specified. If we measure a stabilizer which, if noiseless, should return an EVEN (+1) parity outcome. In 
 
+<table>
+  <thead>
+    <tr>
+      <td> Reported parity </td>
+      <td> Qubit errors </td>
+    </tr>
+  </thead>
+  <tbody>
+    <tr><td> EVEN </td><td> I I I I </td></tr>
+    <tr><td> EVEN </td><td> I I I Z </td></tr>
+    <tr><td> EVEN </td><td> I I I X </td></tr>
+    <tr><td> EVEN </td><td> I I I Y </td></tr>
+    <tr><td> EVEN </td><td> I I I Y </td></tr>
+    <tr><td> EVEN </td><td> I I X X </td></tr>
+    <tr><td> EVEN </td><td> I I X Y </td></tr>
+    <tr><td> EVEN </td><td> I I Y Y </td></tr>
+    <tr><td> EVEN </td><td> I I X Z </td></tr>
+    <tr><td> EVEN </td><td> I I Y Z </td></tr>
+    <tr><td> EVEN </td><td> I I Z Z </td></tr>
+    <tr><td> ODD </td><td> I I I I </td></tr>
+    <tr><td> ODD </td><td> I I I Z </td></tr>\
+    <tr><td> ODD </td><td> ... </td></tr>
+  </tbody>
+</table>
+
+parity = EVEN, 
+
+[[1,[I,I]],[1,[I,Z]],[1,[I,X]],[1,[I,Y]],
+            [1,[X,X]],[1,[X,Y]],[1,[Y,Y]],[1,[X,Z]],
+            [1,[Y,Z]],[1,[Z,Z]],[-1,[I,I]],[-1,[I,Z]],
+            [-1,[I,X]],[-1,[I,Y]],[-1,[X,X]],[-1,[X,Y]],
+            [-1,[Y,Y]],[-1,[X,Z]],[-1,[Y,Z]],[-1,[Z,Z]]]
 
 ```python
 import st
