@@ -66,40 +66,44 @@ This superoperator decomposition is specified through a text file of the form fo
 
 #Toric Code
 
-For the toric code, all stabilizer measurements are 4 body operations, so only one superoperator must be specified. If we measure a stabilizer which, if noiseless, should return an EVEN (+1) parity outcome. In 
+For the toric code, all stabilizer measurements are 4 body operations, so only one superoperator must be specified. If we measure a stabilizer which, if noiseless, should return an EVEN (+1) parity outcome. Physical errors occuring during the measurement circuit, however, will sometimes result in a different operation even when an EVEN result is reported. The input to the toric code simulator takes as input the probabilities of the following possibilities, where for example EVEN,IIXX describes the case where an even parity projection is followed by X errors on 2 of the 4 qubits (in any configuration). Only errors of up to two qubits are specified since 3 or more qubit errors are very unlikely to occur in the low error regime. 
 
 <table>
   <thead>
     <tr>
-      <td> Reported parity </td>
+      <td> Parity projection </td>
       <td> Qubit errors </td>
+      <td> Probability </td>
     </tr>
   </thead>
   <tbody>
-    <tr><td> EVEN </td><td> I I I I </td></tr>
-    <tr><td> EVEN </td><td> I I I Z </td></tr>
-    <tr><td> EVEN </td><td> I I I X </td></tr>
-    <tr><td> EVEN </td><td> I I I Y </td></tr>
-    <tr><td> EVEN </td><td> I I I Y </td></tr>
-    <tr><td> EVEN </td><td> I I X X </td></tr>
-    <tr><td> EVEN </td><td> I I X Y </td></tr>
-    <tr><td> EVEN </td><td> I I Y Y </td></tr>
-    <tr><td> EVEN </td><td> I I X Z </td></tr>
-    <tr><td> EVEN </td><td> I I Y Z </td></tr>
-    <tr><td> EVEN </td><td> I I Z Z </td></tr>
-    <tr><td> ODD </td><td> I I I I </td></tr>
-    <tr><td> ODD </td><td> I I I Z </td></tr>\
+    <tr><td> EVEN </td><td> I I I I </td><td>p<sub>EVEN,0</sub></tr>
+    <tr><td> EVEN </td><td> I I I Z </td><td>p<sub>EVEN,1</sub></tr>
+    <tr><td> EVEN </td><td> I I I X </td><td>p<sub>EVEN,2</sub></tr>
+    <tr><td> EVEN </td><td> I I I Y </td><td>p<sub>EVEN,3</sub></tr>
+    <tr><td> EVEN </td><td> I I X X </td><td>p<sub>EVEN,4</sub></tr>
+    <tr><td> EVEN </td><td> I I X Y </td><td>p<sub>EVEN,5</sub></tr>
+    <tr><td> EVEN </td><td> I I Y Y </td><td>p<sub>EVEN,6</sub></tr>
+    <tr><td> EVEN </td><td> I I X Z </td><td>p<sub>EVEN,7</sub></tr>
+    <tr><td> EVEN </td><td> I I Y Z </td><td>p<sub>EVEN,8</sub></tr>
+    <tr><td> EVEN </td><td> I I Z Z </td><td>p<sub>EVEN,9</sub></tr>
+    <tr><td> ODD </td><td> I I I I </td><td>p<sub>ODD,0</sub></tr>
+    <tr><td> ODD </td><td> I I I Z </td><td>p<sub>ODD,1</sub></tr>\
     <tr><td> ODD </td><td> ... </td></tr>
   </tbody>
 </table>
 
-parity = EVEN, 
+The 
 
-[[1,[I,I]],[1,[I,Z]],[1,[I,X]],[1,[I,Y]],
-            [1,[X,X]],[1,[X,Y]],[1,[Y,Y]],[1,[X,Z]],
-            [1,[Y,Z]],[1,[Z,Z]],[-1,[I,I]],[-1,[I,Z]],
-            [-1,[I,X]],[-1,[I,Y]],[-1,[X,X]],[-1,[X,Y]],
-            [-1,[Y,Y]],[-1,[X,Z]],[-1,[Y,Z]],[-1,[Z,Z]]]
+```
+#ERRORVEC4
+
+p_error_1 p_EVEN,0  p_EVEN,1  p_EVEN,2 p_EVEN,3 .... p_ODD,0 p_ODD,1 ... p_ODD,9  
+p_error_2 p_EVEN,0  p_EVEN,1  p_EVEN,2 p_EVEN,3 .... p_ODD,0 p_ODD,1 ... p_ODD,9  
+p_error_3 p_EVEN,0  p_EVEN,1  p_EVEN,2 p_EVEN,3 .... p_ODD,0 p_ODD,1 ... p_ODD,9  
+...
+
+```
 
 ```python
 import st
