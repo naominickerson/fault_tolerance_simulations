@@ -1,20 +1,16 @@
 A Python library for fault tolerance simulations of the surface code
 using the blossom 5 perfect matching algorithm
 
-Two different scenarios are covered by this library
+Three different fault tolerance scenarios are covered by this library
 
+* Surface code (planar and toric) under random noise
+* Surface code (planar and toric) under noise defined by a superoperator description of noisy stabilizer measurements
 * Planar code implemented in solid state spins
-* Surface code (planar and toric) simulated under a general description of the noise on stabilizer measurements
+
+# Surface code under random noise
 
 
-# Solid state spin implementation of the surface code
-
-
-# Surface code under noisy stabilizer measurements
-
-## Random Noise
-
-### Toric code under random noise
+## Toric code under random noise
 
 ```python
 
@@ -39,7 +35,7 @@ This means that the first logical qubit has no logical error, while the second l
 This function should be run a large number of times to build up statistics on the success probability of the decoder under the given error rates.
 
 
-### Planar code under random noise
+## Planar code under random noise
 
 This functions very similarly to the toric code 
 
@@ -58,14 +54,17 @@ result = [1,-1]
 ```
 would correspond to the case where a Z flip had occurred on the logical qubit after the attempted error correction. 
 
-## Error described by a stabilizer superoperator
+
+# Error described by a stabilizer superoperator
 
 This variant of the code puts a more general form of errors into the code, characterised by the superoperator describing the true (noisy) process of measuring each stabilizer. This superoperator provides a full description of the noisy measurement, and if physical errors are made up of randomly applied Pauli operations, this superoperator can be decomposed into Kraus operators that are simply some product of Pauli operations on the qubits in the stabilizer combined with a possible misreported stabilizer outcome. For more detail see (?)
 
 This superoperator decomposition is specified through a text file of the form found in ``` example_error_vec.txt ```. 
 
-#Toric Code
+##Toric Code
 
+
+### Defining the noise model
 
 For the toric code, all stabilizer measurements are 4 body operations, so only one superoperator must be specified. If we measure a stabilizer which, if noiseless, should return an EVEN (+1) parity outcome. Physical errors occuring during the measurement circuit, however, will sometimes result in a different operation even when an EVEN result is reported. The input to the toric code simulator takes as input the probabilities of the following possibilities, where for example EVEN,IIXX describes the case where an even parity projection is followed by X errors on 2 of the 4 qubits (in any configuration). Only errors of up to two qubits are specified since 3 or more qubit errors are very unlikely to occur in the low error regime. 
 
@@ -106,6 +105,8 @@ p_error_3 p_EVEN,0  p_EVEN,1  p_EVEN,2 p_EVEN,3 .... p_ODD,0 p_ODD,1 ... p_ODD,9
 
 ```
 
+### Simulating fault tolerance
+
 With the superoperator defined in the textfile, these values can be imported using the ```load_errors``` module, and toric code error correction simulated using the ```st.run3D()``` function.
 
 ```python
@@ -130,4 +131,12 @@ error_vector4 = evecs4[evecs4.keys()[0]]
 
 The ```timespace``` parameter is a vector of two integers, that defines relative weightings between the time and space directions in the perfect matching attempt to correct this errors. This parameter should be optimised for the specific errors considered.
 The ```stabilizersNotComplete``` parameter gives the probability that a given stabilizer is not evaluated. For example if ```stabilizersNotComplete=0.01```, the code will simulate the even that 1% of stabilizer measurements are not recorded, and the correction procedure will attempt to fix the code without any information about those stabilizer measurements.
+
+
+
+
+
+# Solid state spin implementation of the surface code
+
+
 
