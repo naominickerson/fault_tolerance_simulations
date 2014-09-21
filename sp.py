@@ -14,11 +14,10 @@ import planar_lattice_P
 
 
 home = os.environ['HOME']
-#planar_lattice = imp.load_source('planar_lattice','%s/perfect_matching/planar_lattice.py'%home)
 
 
 import perfect_matching
-#import perfect_matching_1203 as perfect_matching
+
 
 
 

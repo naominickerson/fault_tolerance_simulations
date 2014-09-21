@@ -10,6 +10,12 @@ import toric_lattice
 import perfect_matching
 
 home = os.environ['HOME']
+#toric_lattice = imp.load_source('toric_lattice','%s/perfect_matching/toric_lattice.py'%home)
+#perfect_matching = imp.load_source('perfect_matching','%s/perfect_matching/perfect_matching.py'%home)
+
+#import toric_lattice
+#import planar_lattice
+#import perfect_matching
 
         
 class Timer():
