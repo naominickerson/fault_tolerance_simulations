@@ -66,6 +66,7 @@ This superoperator decomposition is specified through a text file of the form fo
 
 #Toric Code
 
+
 For the toric code, all stabilizer measurements are 4 body operations, so only one superoperator must be specified. If we measure a stabilizer which, if noiseless, should return an EVEN (+1) parity outcome. Physical errors occuring during the measurement circuit, however, will sometimes result in a different operation even when an EVEN result is reported. The input to the toric code simulator takes as input the probabilities of the following possibilities, where for example EVEN,IIXX describes the case where an even parity projection is followed by X errors on 2 of the 4 qubits (in any configuration). Only errors of up to two qubits are specified since 3 or more qubit errors are very unlikely to occur in the low error regime. 
 
 <table>
@@ -93,7 +94,7 @@ For the toric code, all stabilizer measurements are 4 body operations, so only o
   </tbody>
 </table>
 
-The 
+These probabilities are input through a text file with the following format: 
 
 ```
 #ERRORVEC4
@@ -105,11 +106,28 @@ p_error_3 p_EVEN,0  p_EVEN,1  p_EVEN,2 p_EVEN,3 .... p_ODD,0 p_ODD,1 ... p_ODD,9
 
 ```
 
+With the superoperator defined in the textfile, these values can be imported using the ```load_errors``` module, and toric code error correction simulated using the ```st.run3D()``` function.
+
 ```python
+
 import st
+import load_errors
 
-errorVector = 
+size=6
+tSteps=5
+timespace=[1,1]
+stabilizersNotComplete=0
 
-result = st.run3D(size,tSteps,errorVector,timespace=[1,1],stabilizersNotComplete=0)
+## Load error vector from file                                                                                           
+evecs3,evecs4 = load_errors.load("example_errorvec.txt")
+error_vector4 = evecs4[evecs4.keys()[0]]
+
+
+[x,z],[x2,z2] = st.run3D(size,tSteps,error_vector4,timespace,stabilizersNotComplete)
+
 
 ```
+
+The ```timespace``` parameter is a vector of two integers, that defines relative weightings between the time and space directions in the perfect matching attempt to correct this errors. This parameter should be optimised for the specific errors considered.
+The ```stabilizersNotComplete``` parameter gives the probability that a given stabilizer is not evaluated. For example if ```stabilizersNotComplete=0.01```, the code will simulate the even that 1% of stabilizer measurements are not recorded, and the correction procedure will attempt to fix the code without any information about those stabilizer measurements.
+
