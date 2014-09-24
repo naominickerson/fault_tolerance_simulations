@@ -138,5 +138,30 @@ The ```stabilizersNotComplete``` parameter gives the probability that a given st
 
 # Solid state spin implementation of the surface code
 
+Simulations of our solid state implementation of the surface code call only on the planar variant of the code. Each simulation generates a lattice of spins via ```arrayMaker.py''' which takes a number of parameters to construct a superoperator for each stabilizer on the defective lattice.
+
+```python
+
+import sp
+size=6
+errortype= 'pillbox'   # the shape of the error distribution for qubit position on lattice
+orbit='circle'         # the orbit ''abrupt'' or ''circle'' determines the phase interpolating function used to generate error superoperator from spin misalignment
+tSteps=20
+sdInX=0.1              # in-plane (x) error parameter for qubit position
+sdInY=0.1              # in-plane (y) error parameter for qubit position
+sdInZ=0.05             # z-dirn or height error parameter for qubit position //note: physical location errors where average distance from probe to data qubit is unity
+pJ=0.0004              # phase jitter, ACTUALLY (jitter)^2/4 so should be small number here! 
+pX=0.001/3
+pY=0.001/3
+pZ=0.001/3             #three components (Pauli-X,Y,Z) of the probe flip error
+prep=0.01              #probe initialisation error
+pLie=0.05
+pErr=0.002              
+timespace=[1,1]
+boundary=1
+
+result = sp.run3Dspin(size,errortype,orbit,tSteps,[sdInX,sdInY,sdInZ,pJ,pX,pY,pZ,prep,meas,data],timespace,boundary)
+
+```
 
 
