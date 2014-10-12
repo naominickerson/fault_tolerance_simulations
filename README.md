@@ -138,7 +138,7 @@ The ```stabilizersNotComplete``` parameter gives the probability that a given st
 
 # Solid state spin implementation of the surface code
 
-Simulations of our solid state implementation of the surface code call only on the planar variant of the code. Each simulation generates a lattice of spins via ```arrayMaker.py``` which takes a number of parameters to construct a superoperator for each stabilizer on the defective lattice.
+Simulations of our solid state implementation of the surface code call only on the planar variant of the code. Each simulation generates a lattice of spins via ```arrayMaker.py``` which takes a number of parameters to construct a superoperator for each stabilizer on the defective lattice. For more detail on this model, see [[5](http://arxiv.org/abs/1406.5149)].
 
 ```python
 
