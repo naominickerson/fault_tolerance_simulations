@@ -1,5 +1,5 @@
 A Python library for fault tolerance simulations of the surface code
-using the blossom 5 perfect matching algorithm
+using the [Blossom 5 implementation by Kolgomorov](http://pub.ist.ac.at/~vnk/software.html) [1] of Edmond's perfect matching algorithm [2].
 
 Three different fault tolerance scenarios are covered by this library
 
@@ -57,7 +57,7 @@ would correspond to the case where a Z flip had occurred on the logical qubit af
 
 # Error described by a stabilizer superoperator
 
-This variant of the code puts a more general form of errors into the code, characterised by the superoperator describing the true (noisy) process of measuring each stabilizer. This superoperator provides a full description of the noisy measurement, and if physical errors are made up of randomly applied Pauli operations, this superoperator can be decomposed into Kraus operators that are simply some product of Pauli operations on the qubits in the stabilizer combined with a possible misreported stabilizer outcome. For more detail see (?)
+This variant of the code puts a more general form of errors into the code, characterised by the superoperator describing the true (noisy) process of measuring each stabilizer. This superoperator provides a full description of the noisy measurement, and if physical errors are made up of randomly applied Pauli operations, this superoperator can be decomposed into Kraus operators that are simply some product of Pauli operations on the qubits in the stabilizer combined with a possible misreported stabilizer outcome. For more detail see [\[3\]]((http://www.nature.com/ncomms/journal/v4/n4/abs/ncomms2773.html),[4](http://arxiv.org/abs/1406.0880).
 
 This superoperator decomposition is specified through a text file of the form found in ``` example_error_vec.txt ```. 
 
@@ -166,3 +166,10 @@ result = sp.run3Dspin(size,errortype,orbit,tSteps,[sdInX,sdInY,sdInZ,pJ,pX,pY,pZ
 ```
 
 
+[1] Kolmogorov, V. Blossom V: a new implementation of a minimum cost perfect matching algorithm. Math. Prog. Comp. 1, 43–67 (2009).<br>
+[2] Edmonds, J. Paths, Trees, and Flowers, Canad. J. Math. 17, 449–467 (1965) .<br>
+[3] [Topological quantum computing with a very noisy network and local error rates approaching one percent <br>
+NH Nickerson, Y Li, SC Benjamin Nature communications 4, 1756](http://www.nature.com/ncomms/journal/v4/n4/abs/ncomms2773.html) <br>
+[4] [Freely Scalable Quantum Technologies using Cells of 5-to-50 Qubits with Very Lossy and Noisy Photonic Links
+NH Nickerson, JF Fitzsimons, SC Benjamin arXiv preprint arXiv:1406.0880](http://arxiv.org/abs/1406.0880) <br>
+[5] [A silicon-based surface code quantum computer, J O'Gorman, NH Nickerson, P Ross, JJL Morton, SC Benjamin arXiv preprint arXiv:1406.5149](http://arxiv.org/abs/1406.5149)
