@@ -57,7 +57,7 @@ would correspond to the case where a Z flip had occurred on the logical qubit af
 
 # Error described by a stabilizer superoperator
 
-This variant of the code puts a more general form of errors into the code, characterised by the superoperator describing the true (noisy) process of measuring each stabilizer. This superoperator provides a full description of the noisy measurement, and if physical errors are made up of randomly applied Pauli operations, this superoperator can be decomposed into Kraus operators that are simply some product of Pauli operations on the qubits in the stabilizer combined with a possible misreported stabilizer outcome. For more detail see [\[3\]]((http://www.nature.com/ncomms/journal/v4/n4/abs/ncomms2773.html),[4](http://arxiv.org/abs/1406.0880).
+This variant of the code puts a more general form of errors into the code, characterised by the superoperator describing the true (noisy) process of measuring each stabilizer. This superoperator provides a full description of the noisy measurement, and if physical errors are made up of randomly applied Pauli operations, this superoperator can be decomposed into Kraus operators that are simply some product of Pauli operations on the qubits in the stabilizer combined with a possible misreported stabilizer outcome. For more detail see [[3](http://www.nature.com/ncomms/journal/v4/n4/abs/ncomms2773.html)], [[4](http://arxiv.org/abs/1406.0880)].
 
 This superoperator decomposition is specified through a text file of the form found in ``` example_error_vec.txt ```. 
 
