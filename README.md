@@ -7,6 +7,10 @@ Three different fault tolerance scenarios are covered by this library
 * Surface code (planar and toric) under noise defined by a superoperator description of noisy stabilizer measurements
 * Planar code implemented in solid state spins
 
+### Compiling the perfect matching code
+
+Use command ``make`` in directory blossom5/ to compile the perfect matching code to be used by the decoder. 
+
 # Surface code under random noise
 
 
