@@ -7,7 +7,7 @@ import imp
 
 import load_errors
 import toric_lattice
-import perfect_matching
+import parametrized_perfect_matching as perfect_matching
 
 home = os.environ['HOME']
 #toric_lattice = imp.load_source('toric_lattice','%s/perfect_matching/toric_lattice.py'%home)

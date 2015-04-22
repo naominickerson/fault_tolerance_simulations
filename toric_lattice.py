@@ -5,7 +5,7 @@ import itertools
 import numpy as np
 
 #For using .showArray() function uncomment this
-#import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt
 
 
 
@@ -297,6 +297,29 @@ class PlanarLattice:
         for (x0,x1) in self.positions_Q:
             self.array[x0][x1][c]*=flip_array[x0][x1]       
 
+    def applyNCorrelatedErrors(self,pX,N):
+
+        direction =(0,1)
+
+        for q0,q1 in self.positions_Q:
+            rand1 = random.random()
+
+            if rand1<pX:
+                d = random.choice(direction)
+                if d==0 and q0%2==0:
+                    positions = [[(q0+2*i)%(2*self.size),q1] for i in range(N)]
+                elif d==1 and q0%2==0: 
+                    positions = [[(q0-2*i)%(2*self.size),q1] for i in range(N)]
+                elif d==0 and q0%2==1:
+                    positions = [[q0,(q1+2*i)%(2*self.size)] for i in range(N)]
+                elif d==1 and q0%2==1:
+                    positions = [[q0,(q1-2*i)%(2*self.size)] for i in range(N)]
+
+                for qq0,qq1 in positions:
+                    self.array[qq0][qq1][0]*=-1
+
+
+
  
 
     def applyRandomErrors(self,pX,pZ):
@@ -329,11 +352,18 @@ class PlanarLattice:
         anyon_positions_S=[]
         anyon_positions_P=[]
         
-        for i in range(self.N_P):
-            if self.star[i]==-1:
-                anyon_positions_S+=[self.positions_S[i]]
-            if self.plaq[i]==-1:
-                anyon_positions_P+=[self.positions_P[i]]
+        for p0,p1 in self.positions_S:
+            if self.array[p0][p1]==-1:
+                anyon_positions_S += [(p0,p1)]
+        for p0,p1 in self.positions_P:
+            if self.array[p0][p1]==-1:
+                anyon_positions_P += [(p0,p1)]
+
+        # for i in range(self.N_P):
+        #     if self.star[i]==-1:
+        #         anyon_positions_S+=[self.positions_S[i]]
+        #     if self.plaq[i]==-1:
+        #         anyon_positions_P+=[self.positions_P[i]]
                  
         self.positions_anyons_P=anyon_positions_P
         self.positions_anyons_S=anyon_positions_S

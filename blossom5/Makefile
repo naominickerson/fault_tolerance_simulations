@@ -6,7 +6,7 @@ OBJS := $(patsubst %.cpp, %.o, $(SOURCES)) # creates a list of every cpp object 
 #CFLAGS := -O3 -D_NDEBUG	# flags for .o compilation
 CFLAGS:= -c -fPIC
 CXX ?= icc		# cpp compiler
-LIBS := -lrt
+LIBS := 
 INCLUDES := 
 LIBDIR := 
 
