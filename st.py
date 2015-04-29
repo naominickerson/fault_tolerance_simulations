@@ -130,6 +130,52 @@ def run2D(size=4,p=0.1):
 
         
 
+def run3Dasynchronous(size=4,tSteps=5,pErr=0.01,pLie=0.01,asynchronicity=1,timespace=[1,1]):
+ 
+  # The asynchronicity factor, A, splits each 'round' of the error correction into A rounds
+  # in each round the probably of physical errors is reduced by a factor of A, and the probability
+  # of any given stabilizer being measured is 1/A. 
+
+   pMeasure = 1/float(asynchronicity)
+   total_timesteps = int(tSteps*asynchronicity)
+   p = pErr/asynchronicity
+
+
+   L=toric_lattice.PlanarLattice(size)
+   PL=toric_lattice.Lattice3D(size)
+
+   L.applyRandomErrors(0,0)   # leave this here for initialisation                                                    
+   xcount,zcount = 0,0
+
+   L=toric_lattice.PlanarLattice(size)
+   PL=toric_lattice.Lattice3D(size)
+   
+   L.applyRandomErrors(0,0)   # leave this here for initialisation
+   
+   for i in range(total_timesteps):                     # loop over time      
+                
+        L.applyRandomErrors(p,p)
+        L.measurePlaquettes(pLie,pMeasure)               
+        L.measureStars(pLie,pMeasure)                    
+
+        PL.addMeasurement(L)         # add the updated 2D lattice to 3D array
+
+   L.measurePlaquettes(0)                      # measure one more layer with
+   L.measureStars(0)                           # perfect stabilizers and add
+   PL.addMeasurement(L)             # this to the parity Lattice
+
+   PL.findAnyons()
+
+   matchingX=perfect_matching.match_toric_3D(size,PL.anyon_positions_P,timespace)
+   matchingZ=perfect_matching.match_toric_3D(size,PL.anyon_positions_S,timespace)
+
+   flipsX=squashMatching(size,matchingX)
+   flipsZ=squashMatching(size,matchingZ)
+
+   L.apply_flip_array("Z",flipsZ)
+   L.apply_flip_array("X",flipsX)
+
+   return L.measure_logical()
 
 
 
