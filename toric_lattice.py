@@ -314,8 +314,35 @@ class PlanarLattice:
                     self.array[qq0][qq1][0]*=-1
 
 
+    def applyRandomWalkErrors(self,pX,N,self_avoiding=False):
+        for q0,q1 in self.positions_Q:
+            rand1 = random.random()
 
+            if rand1<pX:
+                randomWalk = self.generateRandomWalk(q0,q1,N,self_avoiding)
+                for qq0,qq1 in randomWalk:
+                    self.array[qq0][qq1][0]*=-1
  
+    def generateRandomWalk(self,q0,q1,N,self_avoiding):
+
+        position = [q0,q1]
+        walk = [position]
+
+        for i in range(N):
+            position = self.update_walk_position(position)
+            walk += [position]
+
+        return walk
+
+    def update_walk_position(self,position):
+        q0,q1 = position
+        if q0%2==0:
+            possible_updates = [[2,0],[-2,0],[1,1],[1,-1],[-1,1],[-1,-1]]
+        elif q0%2==1:
+            possible_updates = [[0,2],[0,-2],[1,1],[1,-1],[-1,1],[-1,-1]]
+
+        u0,u1 = random.choice(possible_updates)
+        return (q0+u0)%(2*self.size),(q1+u1)%(2*self.size)
 
     def applyRandomErrors(self,pX,pZ):
         """ Applies random X and Z errors with the given probabilites to all qubits.
