@@ -4,6 +4,7 @@ import csv
 import subprocess
 import time
 import copy
+import math
 
 import blossom5.pyMatch as pm
 
@@ -13,6 +14,8 @@ import blossom5.pyMatch as pm
 ## constructs the corresponding graph problem, and interfaces with the Blossom V algorithm (Kologomorov)
 ## to perform minimum weight matching.  
 
+
+
 def normal_weights(pos1,pos2,lattice_size):
     m = lattice_size
     [p0,p1],[q0,q1]=pos1,pos2
@@ -20,6 +23,76 @@ def normal_weights(pos1,pos2,lattice_size):
     w1=(p1-q1)%m
     weight=min([w0,m-w0])+min([w1,m-w1])
     return weight
+
+def xy_configurations(pos1,pos2,lattice_size,weighted_configurations):
+
+    # weighted_separations is a dictionary of known anyon separation 
+    # configurations, (a,b)  where a<b, and their relative probabilities
+    ## e.g. {(2,2): 0.2, (0,4): 0.5, (0,6): 0.01 ... }
+
+    m=lattice_size
+    [p0,p1],[q0,q1]=pos1,pos2
+    
+    w0=abs((p0-q0)%m)
+    w1=abs((p1-q1)%m)
+
+    w0 = min([m-w0,w0])
+    w1 = min([m-w1,w1])
+
+    t=[w0,w1]
+    t.sort()
+    w0,w1=t
+
+    default = min(weighted_configurations.values())/100.
+    weight = weighted_configurations.get((w0,w1),None)
+
+    if weight==None:
+        weight = -(w0+w1)*math.log(default)
+    else:
+        weight = -math.log(weight)
+
+    return int(weight*10000)
+
+
+def xy_weighted(pos1,pos2,lattice_size,weighted_separations):
+    # weighted_separations is a hash, of known separations
+    # and their relative probabilities:  
+    ## {s1: p1, s2: p2, s3: p3 ... }
+
+    m = lattice_size
+    [p0,p1],[q0,q1]=pos1,pos2
+    
+    w0=abs((p0-q0)%m)
+    w1=abs((p1-q1)%m)
+
+    w0 = min([m-w0,w0])
+    w1 = min([m-w1,w1])
+
+    default = None
+    wmin = min(weighted_separations.values())
+    w = weighted_separations.get((w0+w1),default)
+
+    if w==None:
+        return -int(math.log(wmin)*1000)*lattice_size*(w0+w1)
+    else: 
+        return -int(math.log(w)*1000)
+
+
+def xy_fixed_weights(pos1,pos2,lattice_size,lmbda):
+    m = lattice_size
+    [p0,p1],[q0,q1]=pos1,pos2
+    
+    w0=abs((p0-q0)%m)
+    w1=abs((p1-q1)%m)
+
+    w0 = min([m-w0,w0])
+    w1 = min([m-w1,w1])
+
+    if (w0+w1) == lmbda :
+        return w0+w1
+    else:
+        return (w0+w1)*100
+
 
 def n_times_weights(pos1,pos2,lattice_size,n_corr):
     m = lattice_size
@@ -56,12 +129,24 @@ def n_times_weights(pos1,pos2,lattice_size,n_corr):
     
     return w0+w1
 
+
+#### Parametrized Decoders
+
+def match_toric_2D_with_xy_weighted(lattice_size,anyon_positions,weighted_configurations):
+    return match_toric_2D_by_weights(lattice_size,anyon_positions,xy_weighted,[weighted_configurations])
+
+def match_toric_2D_with_xy_configurations(lattice_size,anyon_positions,weighted_configurations):
+    return match_toric_2D_by_weights(lattice_size,anyon_positions,xy_configurations,[weighted_configurations])
+
+def match_toric_2D_with_xy_fixed(lattice_size,anyon_positions,lmbda):
+    return match_toric_2D_by_weights(lattice_size,anyon_positions,xy_fixed_weights,[lmbda])
+
 def match_toric_2D_with_ncorr(lattice_size,anyon_positions,n_corr):
     return match_toric_2D_by_weights(lattice_size,anyon_positions,n_times_weights,[n_corr])
 
-
 def match_toric_2D(lattice_size,anyon_positions):
     return match_toric_2D_by_weights(lattice_size,anyon_positions,normal_weights)
+
 
 
 def match_toric_2D_by_weights(lattice_size,anyon_positions,weight_function,weight_function_params = []):
@@ -92,10 +177,9 @@ def match_toric_2D_by_weights(lattice_size,anyon_positions,weight_function,weigh
 
     ##fully connect the nodes within the 2D layer
     ## node numbering starts at 0 
-
     for i in range(n_nodes-1):
         pos1=nodes_list[i]
-        
+
         for j in range(n_nodes-i-1):
             pos2=nodes_list[j+i+1]
             
@@ -104,6 +188,9 @@ def match_toric_2D_by_weights(lattice_size,anyon_positions,weight_function,weigh
             weight = weight_function(*params)
             graphArray+=[[i,j+i+1,weight]]
 
+    # for g in graphArray:
+    #     print g
+
     n_edges=len(graphArray)
 
     ## Use the blossom5 perfect matching algorithm to return a matching
@@ -111,6 +198,9 @@ def match_toric_2D_by_weights(lattice_size,anyon_positions,weight_function,weigh
     
     ## REFORMAT MATCHING
     matching_pairs=[[i,matching[i]] for i in range(n_nodes) if matching[i]>i]
+
+    #print matching_pairs
+
     points=[] if len(matching_pairs)==0 else [[nodes_list[i] for i in x] for x in matching_pairs]
   
     return points

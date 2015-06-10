@@ -137,32 +137,32 @@ class PlanarLattice:
         """
 
 
-        if channel in ["X",0]: c=0
-        elif channel in ["Z",1]: c=1
-        else: 
-            "channel = ",channel," is not supported. \"X\" and \"Z\" are the possible channels"
+        # if channel in ["X",0]: c=0
+        # elif channel in ["Z",1]: c=1
+        # else: 
+        #     "channel = ",channel," is not supported. \"X\" and \"Z\" are the possible channels"
 
         
-        if arrayType in ["error","errors","Errors","Error"]: 
-            print_array = [[str(x[c]) if isinstance(x,list) else '.' for x in row] for row in self.array]
+        # if arrayType in ["error","errors","Errors","Error"]: 
+        #     print_array = [[str(x[c]) if isinstance(x,list) else '.' for x in row] for row in self.array]
         
-        elif arrayType in ["stabilizers","stabs","stabilisers","stabilizer","stabiliser"]:
-            print_array = [[str(x) if isinstance(x,int) else '.' for x in row] for row in self.array]
+        # elif arrayType in ["stabilizers","stabs","stabilisers","stabilizer","stabiliser"]:
+        #     print_array = [[str(x) if isinstance(x,int) else '.' for x in row] for row in self.array]
 
-        elif arrayType in ["all","both"]:
-            print_array = [[str(x[c]) if isinstance(x,list) else ("#" if x==-1 else ".") for x in row] for row in self.array]
+        # elif arrayType in ["all","both"]:
+        #     print_array = [[str(x[c]) if isinstance(x,list) else ("#" if x==-1 else ".") for x in row] for row in self.array]
 
-        else: 
-            print 'arrayType = ',arrayType,'. This array type isn\'t supported by showArrayText.'
-            print ' please choose  \'errors\' or \'stabilizers\''
+        # else: 
+        #     print 'arrayType = ',arrayType,'. This array type isn\'t supported by showArrayText.'
+        #     print ' please choose  \'errors\' or \'stabilizers\''
         
 
-        print '\n showing the ',arrayType,' array',
-        if arrayType in ["error","errors","Errors","Error"]: print 'for the ',channel,' channel.\n'
-        else: print '.\n'
-        col_width = 3
-        for row in print_array:
-            print "".join(word.ljust(col_width) for word in row)
+        # print '\n showing the ',arrayType,' array',
+        # if arrayType in ["error","errors","Errors","Error"]: print 'for the ',channel,' channel.\n'
+        # else: print '.\n'
+        # col_width = 3
+        # for row in print_array:
+        #     print "".join(word.ljust(col_width) for word in row)
 
 
 
@@ -313,36 +313,63 @@ class PlanarLattice:
                 for qq0,qq1 in positions:
                     self.array[qq0][qq1][0]*=-1
 
+    def applySingleRWerror(self,N,self_avoiding=False):
+        pos = self.positions_P[1]
+        randomWalk = self.generateRandomWalk(pos,N,self_avoiding)
+        for qq0,qq1 in randomWalk:
+            self.array[qq0][qq1][0]*=-1
 
     def applyRandomWalkErrors(self,pX,N,self_avoiding=False):
-        for q0,q1 in self.positions_Q:
+        for pos in self.positions_P:
             rand1 = random.random()
+            if rand1<pX: 
+                randomWalk = self.generateRandomWalk(pos,N,self_avoiding)
 
-            if rand1<pX:
-                randomWalk = self.generateRandomWalk(q0,q1,N,self_avoiding)
+        # for q0,q1 in self.positions_Q:
+        #     rand1 = random.random()
+
+        #     if rand1<pX:
+        #         randomWalk = self.generateRandomWalk(q0,q1,N,self_avoiding)
+        #         print randomWalk
                 for qq0,qq1 in randomWalk:
                     self.array[qq0][qq1][0]*=-1
  
-    def generateRandomWalk(self,q0,q1,N,self_avoiding):
+    def generateRandomWalk(self,pos,N,self_avoiding):
 
-        position = [q0,q1]
-        walk = [position]
+        ## Generate a random walk in plaquette positions
+        directions = [[2,0],[-2,0],[0,2],[0,-2]]
+        a,b=pos
+        walk = [[a,b]]
 
         for i in range(N):
-            position = self.update_walk_position(position)
-            walk += [position]
 
-        return walk
+            a,b = walk[-1]
 
-    def update_walk_position(self,position):
-        q0,q1 = position
-        if q0%2==0:
-            possible_updates = [[2,0],[-2,0],[1,1],[1,-1],[-1,1],[-1,-1]]
-        elif q0%2==1:
-            possible_updates = [[0,2],[0,-2],[1,1],[1,-1],[-1,1],[-1,-1]]
+            new_positions = [[(a+u0)%(2*self.size),(b+u1)%(2*self.size)] for u0,u1 in directions]
+            self_avoiding_new_positions = [[a,b] for a,b in new_positions if [a,b] not in walk]
 
-        u0,u1 = random.choice(possible_updates)
-        return (q0+u0)%(2*self.size),(q1+u1)%(2*self.size)
+            if self_avoiding==False:
+                walk += [random.choice(new_positions)]
+            elif self_avoiding==True:
+                walk += [random.choice(self_avoiding_new_positions)]
+
+        ## convert anyon random walk into an error chain connection the plaquettes
+        qubit_walk = []
+        for p1,p2 in zip(walk,walk[1:]):
+
+            d0 = (p2[0]-p1[0])/2
+            d1 = (p2[1]-p1[1])/2
+
+            if d0>1: d0 = -1 
+            if d0< -1: d0 = 1 
+            if d1>1: d1 = -1 
+            if d1<-1: d1 = 1 
+
+            qubit_walk+=[[(p1[0]+d0)%(2*self.size),(p1[1]+d1)%(2*self.size)]]
+
+
+        return qubit_walk
+   
 
     def applyRandomErrors(self,pX,pZ):
         """ Applies random X and Z errors with the given probabilites to all qubits.
@@ -520,14 +547,14 @@ class PlanarLattice:
         No value returned. Stabilizer values updated in self.array
         """
         
-	if channel=="plaquette":
-        	errorList1=errorListP1
-        	errorList2=errorListP2        	
-	elif channel=="star":
-        	errorList1=errorListS1
-        	errorList2=errorListS2
+        if channel=="plaquette":
+            errorList1=errorListP1
+            errorList2=errorListP2
+        elif channel=="star":
+            errorList1=errorListS1
+            errorList2=errorListS2
         else: 
-            print "USAGE: measureNoisyStabilizers(channel, errorVector4)\n channel must be *star* or *plaquette* \n"
+            # print "USAGE: measureNoisyStabilizers(channel, errorVector4)\n channel must be *star* or *plaquette* \n"
             return 0
 
         sortList1=sorted(zip(errorVector4,errorList1),reverse=True)     # label the error probabilities list
