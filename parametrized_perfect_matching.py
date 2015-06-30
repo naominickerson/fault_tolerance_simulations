@@ -193,6 +193,7 @@ def match_toric_2D_by_weights(lattice_size,anyon_positions,weight_function,weigh
 
     n_edges=len(graphArray)
 
+
     ## Use the blossom5 perfect matching algorithm to return a matching
     matching=pm.getMatching(n_nodes,graphArray)
     

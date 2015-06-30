@@ -292,6 +292,32 @@ class PlanarLattice:
         for (x0,x1) in self.positions_Q:
             self.array[x0][x1][c]*=flip_array[x0][x1]       
 
+    def apply2NCorrelatedErrors(self,pX,pN1,N1,N2):
+
+        direction = (0,1)
+
+        for q0,q1 in self.positions_Q:
+            rand1=random.random()
+
+            if rand1<pX:
+                d = random.choice(direction)
+                N = N1 if random.random()<pN1 else N2
+                
+                if d==0 and q0%2==0:
+                    positions = [[(q0+2*i)%(2*self.size),q1] for i in range(N)]
+                elif d==1 and q0%2==0: 
+                    positions = [[(q0-2*i)%(2*self.size),q1] for i in range(N)]
+                elif d==0 and q0%2==1:
+                    positions = [[q0,(q1+2*i)%(2*self.size)] for i in range(N)]
+                elif d==1 and q0%2==1:
+                    positions = [[q0,(q1-2*i)%(2*self.size)] for i in range(N)]
+
+                for qq0,qq1 in positions:
+                    self.array[qq0][qq1][0]*=-1
+
+
+
+
     def applyNCorrelatedErrors(self,pX,N):
 
         direction =(0,1)
