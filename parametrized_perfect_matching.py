@@ -54,7 +54,7 @@ def xy_configurations(pos1,pos2,lattice_size,weighted_configurations):
     return int(weight*10000)
 
 
-def xy_weighted(pos1,pos2,lattice_size,weighted_separations):
+def xy_weighted(pos1,pos2,lattice_size,weighted_separations,default_weight=None):
     # weighted_separations is a hash, of known separations
     # and their relative probabilities:  
     ## {s1: p1, s2: p2, s3: p3 ... }
@@ -67,13 +67,16 @@ def xy_weighted(pos1,pos2,lattice_size,weighted_separations):
 
     w0 = min([m-w0,w0])
     w1 = min([m-w1,w1])
-
-    default = None
+    
+    default=None
     wmin = min(weighted_separations.values())
     w = weighted_separations.get((w0+w1),default)
 
     if w==None:
-        return -int(math.log(wmin)*1000)*lattice_size*(w0+w1)
+        if default_weight==None:
+            return -int(math.log(wmin)*1000)*lattice_size*(w0+w1)
+        else:
+            return default_weight*(w0+w1)
     else: 
         return -int(math.log(w)*1000)
 
@@ -132,8 +135,8 @@ def n_times_weights(pos1,pos2,lattice_size,n_corr):
 
 #### Parametrized Decoders
 
-def match_toric_2D_with_xy_weighted(lattice_size,anyon_positions,weighted_configurations):
-    return match_toric_2D_by_weights(lattice_size,anyon_positions,xy_weighted,[weighted_configurations])
+def match_toric_2D_with_xy_weighted(lattice_size,anyon_positions,weighted_configurations,default_multiplier):
+    return match_toric_2D_by_weights(lattice_size,anyon_positions,xy_weighted,[weighted_configurations,default_multiplier])
 
 def match_toric_2D_with_xy_configurations(lattice_size,anyon_positions,weighted_configurations):
     return match_toric_2D_by_weights(lattice_size,anyon_positions,xy_configurations,[weighted_configurations])
