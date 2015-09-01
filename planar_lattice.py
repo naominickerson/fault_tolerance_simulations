@@ -194,25 +194,33 @@ class PlanarLattice:
         anyon_positions_x=[]
         anyon_positions_z=[]
         
-        for i in range(self.N_full_P):
-            if self.full_S[i]==-1:
-                anyon_positions_x+=[self.positions_full_S[i]]
+        for p0,p1 in self.positions_P:
+            if self.array[p0][p1]==-1:
+                anyon_positions_x+=[[p0,p1]]
 
-        for i in range(self.N_edge_P):
-            if self.edge_S_T[i]==-1:
-                anyon_positions_x+=[self.positions_edge_S_T[i]]
-            if self.edge_S_B[i]==-1:
-                anyon_positions_x+=[self.positions_edge_S_B[i]]
+        for p0,p1 in self.positions_S:
+            if self.array[p0][p1]==-1:
+                anyon_positions_z+=[[p0,p1]]
 
-        for i in range(self.N_full_P):
-            if self.full_P[i]==-1:
-                anyon_positions_z+=[self.positions_full_P[i]]
+#        for i in range(self.N_full_P):
+#            if self.full_S[i]==-1:
+#                anyon_positions_x+=[self.positions_full_S[i]]
 
-        for i in range(self.N_edge_P):
-            if self.edge_P_L[i]==-1:
-                anyon_positions_z+=[self.positions_edge_P_L[i]]
-            if self.edge_P_R[i]==-1:
-                anyon_positions_z+=[self.positions_edge_P_R[i]]
+#        for i in range(self.N_edge_P):
+#            if self.edge_S_T[i]==-1:
+#                anyon_positions_x+=[self.positions_edge_S_T[i]]
+#            if self.edge_S_B[i]==-1:
+#                anyon_positions_x+=[self.positions_edge_S_B[i]]
+
+#        for i in range(self.N_full_P):
+#            if self.full_P[i]==-1:
+#                anyon_positions_z+=[self.positions_full_P[i]]
+
+#        for i in range(self.N_edge_P):
+#            if self.edge_P_L[i]==-1:
+#                anyon_positions_z+=[self.positions_edge_P_L[i]]
+#            if self.edge_P_R[i]==-1:
+#                anyon_positions_z+=[self.positions_edge_P_R[i]]
       
              
         self.positions_anyons_S=anyon_positions_x
