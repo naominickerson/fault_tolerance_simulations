@@ -11,20 +11,28 @@ random.seed(0)
 #run3Dspin(size,errortype,orbit,tsteps,[sdInX,sdInY,sdInZ,jitter,pX,pY,pZ,prep,meas,data],[time,space],edge)
 
 
-size=10
+size=8
 errortype='normal'
 orbit='circle'
 tSteps=20
-sd=0.1
+sd=0.01
+pDipole=0.001
+pJ=0.0004
+pX,pY,pZ = 0.001/3,0.001/3,0.001/3
+initError = 0.01
+measureError = 0.01
+dataQubitError=0.002
 
 X,Z,Q = 0,0,0
 
-n_trials=1500
+phaseParameters = [sd,sd,0.5*sd,pJ,pX,pY,pZ,initError,measureError,dataQubitError,pDipole]
+
+n_trials=100
 spaceweight=1400
 boundary=1200
 
 for i in range(n_trials):
-    [x,z] = sp.run3Dspin(size,errortype,orbit, tSteps,[sd,sd,0.5*sd,0.0004,0.001/3,0.001/3,0.001/3,0.01,0.05,0.002],[1000,spaceweight],boundary)
+    [x,z] = sp.run3DspinWithDipole(size,errortype,orbit, tSteps,phaseParameters,[1000,spaceweight],boundary)
 
     X+= 1 if x==1 else 0
     Z+= 1 if z==1 else 0

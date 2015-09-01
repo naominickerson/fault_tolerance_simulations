@@ -62,7 +62,6 @@ class SpinLattice(PlanarLattice):
         elif sType=="B": order=[0,1,3]
         else: raise ValueError('%s is not a valid stabilizer type'%(sType,))
 
-        
     # Measure true value of stabilizer
         stab = 1
         for i in order:
@@ -145,7 +144,34 @@ class SpinLattice(PlanarLattice):
             self.stabilizer(sType,p,edge2)
             
 
+    def applyDipoleErrors(self,pDipole):
+        arraySize=len(self.array)
 
+        for p0,p1 in self.positions_P:
+
+            qubits1,qubits2=[],[]
+            if p0!=0: qubits1+=[[p0-1,p1]]
+            if p0!=arraySize-1: qubits1+=[[p0+1,p1]]
+            if p1!=0: qubits2+=[[p0,p1-1]]
+            if p1!=arraySize-1: qubits2+=[[p0,p1+1]]
+
+            # nearest neighbour interactions
+            for q1,q2 in itertools.product(qubits1,qubits2):
+
+                if random.random()< pDipole:
+                    errType = random.choice([1,2,3])
+                    
+                    if errType==1:  ## XX errors
+                        self.array[q1[0]][q1[1]][0]=-self.array[q1[0]][q1[1]][0]
+                        self.array[q2[0]][q2[1]][0]=-self.array[q2[0]][q2[1]][0]
+                    elif errType==2: ## ZZ errors
+                        self.array[q1[0]][q1[1]][1]=-self.array[q1[0]][q1[1]][1]
+                        self.array[q2[0]][q2[1]][1]=-self.array[q2[0]][q2[1]][1]
+                    elif errType==3: ## YY errors
+                        self.array[q1[0]][q1[1]][0]=-self.array[q1[0]][q1[1]][0]
+                        self.array[q2[0]][q2[1]][0]=-self.array[q2[0]][q2[1]][0]
+                        self.array[q1[0]][q1[1]][1]=-self.array[q1[0]][q1[1]][1]
+                        self.array[q2[0]][q2[1]][1]=-self.array[q2[0]][q2[1]][1]
 
 
 
