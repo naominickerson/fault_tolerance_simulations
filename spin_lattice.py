@@ -159,7 +159,10 @@ class SpinLattice(PlanarLattice):
             for q1,q2 in itertools.product(qubits1,qubits2):
 
                 if random.random()< pDipole:
-                    errType = random.choice([1,2,3])
+                    if (q1[0]-q2[0])==(q1[1]-q2[1]): ## 'Northeast' facing pairs
+                        errType = random.choice([1,1,1,1,2,3])
+                    else: ## 'Southwest' facing pairs
+                        errType=random.choice([1,2,3,3,3,3])
                     
                     if errType==1:  ## XX errors
                         self.array[q1[0]][q1[1]][0]=-self.array[q1[0]][q1[1]][0]

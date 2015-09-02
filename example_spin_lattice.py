@@ -12,16 +12,16 @@ random.seed(0)
 
 
 size=8
-errortype='normal'
+errortype='pillbox'
 orbit='circle'
 tSteps=20
-sd=0.01
-pDipole=0.001
+sd=0.15
+pDipole=0.00
 pJ=0.0004
 pX,pY,pZ = 0.001/3,0.001/3,0.001/3
 initError = 0.01
-measureError = 0.01
-dataQubitError=0.002
+measureError = 0.05
+dataQubitError=0.001
 
 X,Z,Q = 0,0,0
 
