@@ -135,7 +135,7 @@ def n_times_weights(pos1,pos2,lattice_size,n_corr):
 
 #### Parametrized Decoders
 
-def match_toric_2D_with_xy_weighted(lattice_size,anyon_positions,weighted_configurations,default_multiplier):
+def match_toric_2D_with_xy_weighted(lattice_size,anyon_positions,weighted_configurations,default_multiplier=None):
     return match_toric_2D_by_weights(lattice_size,anyon_positions,xy_weighted,[weighted_configurations,default_multiplier])
 
 def match_toric_2D_with_xy_configurations(lattice_size,anyon_positions,weighted_configurations):
@@ -169,13 +169,11 @@ def match_toric_2D_by_weights(lattice_size,anyon_positions,weight_function,weigh
     The perfect matching, a list of paired anyon positions.
 
     """
-    
+    if len(anyon_positions)==0: return []
+
     nodes_list=anyon_positions
     n_nodes=len(nodes_list)
 
-    if n_nodes==0: return []
-
- 
     graphArray=[]
 
     ##fully connect the nodes within the 2D layer
@@ -325,6 +323,8 @@ def match_toric_3D(lattice_size,anyon_positions,weights=[1,1]):
 
 
 
+
+
 def match_planar_2D(lattice_size,stabilizer_type,anyon_positions):
     
 
@@ -336,6 +336,7 @@ def match_planar_2D(lattice_size,stabilizer_type,anyon_positions):
 
     if N_nodes==0:
         return []
+
 
     node_index = []
     count = 0

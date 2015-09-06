@@ -5,7 +5,7 @@ import itertools
 import numpy as np
 
 #For using .showArray() function uncomment this
-#import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt
 
 
 
