@@ -13,6 +13,7 @@ class ThermalLattice(toric_lattice.PlanarLattice):
     self.probability_list=[]
     self.qubits_for_plaquette={} # qubits associated with each plaquette site
     self.plaquettes_for_qubit={} # plaquettes touching each qubit
+    self.dt = 0
 
     for q in self.positions_Q: 
       self.plaquettes_for_qubit[q]=[]
@@ -34,6 +35,7 @@ class ThermalLattice(toric_lattice.PlanarLattice):
   def updateProbabilityList(self,beta=1):
     # takes the probability array and updates it to return a cumulative probability list
     tot = sum([self.gamma(beta,w) for w in self.probability_array.values()])
+    self.dt = -math.log(random.random())/tot
     new_array = []
     total = 0
     for q in self.probability_array.keys():
@@ -66,7 +68,8 @@ class ThermalLattice(toric_lattice.PlanarLattice):
 
   def applyThermalNoise(self,beta,time):
 
-    for t in range(time):
+    time_count = 0
+    for t in range(1000):
 
       self.updateProbabilityArray()
       self.updateProbabilityList(beta)
@@ -79,6 +82,10 @@ class ThermalLattice(toric_lattice.PlanarLattice):
           break
       self.array[qubit_site[0]][qubit_site[1]][0]*=-1
 
+      time_count += self.dt
+      if time_count>time: break
+
+    print time_count, t
 
 
 
