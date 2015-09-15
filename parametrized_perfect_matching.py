@@ -68,7 +68,7 @@ def gaussian(pos1,pos2,lattice_size,mu,sigma):
     default_weight = d*m*1000
 
 
-    gaussian_multiplier = 1- 0.9999*math.exp(-(1/2)*((d-mu)/sigma)**2)
+    gaussian_multiplier = 1- 0.9999*math.exp(-(1/2.)*((d-mu)/sigma)**2)
 
     return int(default_weight*gaussian_multiplier)
 
