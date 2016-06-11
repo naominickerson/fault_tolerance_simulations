@@ -85,7 +85,8 @@ class ThermalLattice(toric_lattice.PlanarLattice):
       time_count += self.dt
       if time_count>time: break
 
-   
+
+
 
 
 

@@ -53,6 +53,31 @@ def xy_configurations(pos1,pos2,lattice_size,weighted_configurations):
 
     return int(weight*10000)
 
+
+def gaussianWithMinMax(pos1,pos2,lattice_size,mu,sigma,minLength,maxLength):
+
+    m = lattice_size
+    [p0,p1],[q0,q1]=pos1,pos2
+    
+    w0=abs((p0-q0)%m)
+    w1=abs((p1-q1)%m)
+
+    w0 = min([m-w0,w0])
+    w1 = min([m-w1,w1])
+
+    d = float(w0+w1)
+    default_weight = d*m*1000
+
+    
+    gaussian_multiplier = 1- 0.9999*math.exp(-(1/2.)*((d-mu)/sigma)**2)
+    
+    result = default_weight*gaussian_multiplier
+    if d>maxLength: result = result*10
+    if d<minLength: result = result*10
+    return int(result)
+    
+
+
 def gaussian(pos1,pos2,lattice_size,mu,sigma):
 
     m=lattice_size
@@ -68,7 +93,7 @@ def gaussian(pos1,pos2,lattice_size,mu,sigma):
     default_weight = d*m*1000
 
 
-    gaussian_multiplier = 1- 0.9999*math.exp(-(1/2)*((d-mu)/sigma)**2)
+    gaussian_multiplier = 1- 0.9999*math.exp(-(1/2.)*((d-mu)/sigma)**2)
 
     return int(default_weight*gaussian_multiplier)
 
@@ -152,6 +177,9 @@ def n_times_weights(pos1,pos2,lattice_size,n_corr):
 
 
 #### Parametrized Decoders
+
+def match_toric_2D_gaussian_with_minmax(lattice_size,anyon_positions,mu,sigma,minval,maxval):
+    return match_toric_2D_by_weights(lattice_size,anyon_positions,gaussianWithMinMax,[mu,sigma,minval,maxval])
 
 def match_toric_2D_gaussian(lattice_size,anyon_positions,mu,sigma):
     return match_toric_2D_by_weights(lattice_size,anyon_positions,gaussian,[mu,sigma])
